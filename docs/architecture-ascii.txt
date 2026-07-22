@@ -1,0 +1,72 @@
+Diagrama ASCII de la arquitectura del paquete com.amalakaky.aegiscode
+
+com.amalakaky.aegiscode
+├── AegiscodeApplication.java — Clase principal Spring Boot (entrypoint)
+├── application
+│   └── port
+│       ├── in
+│       │   └── AnalyzeCodeUseCase.java — Puerto de entrada (contrato del caso de uso)
+│       ├── out
+│       │   ├── ai
+│       │   │   ├── AuditorAgentPort.java — Puerto para análisis con IA (detecta vulnerabilidades)
+│       │   │   └── RemediationAgentPort.java — Puerto para generación de parches
+│       │   └── db
+│       │       └── AuditRepositoryPort.java — Puerto de salida para persistencia de reports
+│       └── usecase
+│           └── AnalyzeCodeUseCaseImpl.java — Implementación del caso de uso (orquestador)
+├── domain
+│   └── model
+│       ├── AuditReport.java — Agregado/entidad de dominio que representa el informe de auditoría
+│       ├── Vulnerability.java — Modelo de vulnerabilidad (cweId, severity, description, patch)
+│       └── SeverityScore.java — Value object para severidad (valida 1..10)
+├── infrastructure
+│   ├── adapter
+│   │   ├── in
+│   │   │   ├── rest
+│   │   │   │   ├── AuditController.java — Endpoint REST (POST /api/v1/audit/scan)
+│   │   │   │   └── dto
+│   │   │   │       ├── SourceCodeRequest.java — DTO de entrada (validaciones)
+│   │   │   │       └── AuditReportResponse.java — DTO de salida (map desde dominio)
+│   │   │   └── web
+│   │   │       └── AuditController.java — Controlador para otra exposición (web)
+│   │   └── out
+│   │       ├── ai
+│   │       │   ├── SpringAiAuditorAdapter.java — Implementa AuditorAgentPort usando Spring AI ChatClient
+│   │       │   └── SpringAiRemediationAdapter.java — Implementa RemediationAgentPort con ChatClient
+│   │       └── db
+│   │           ├── SupabaseAuditRepositoryAdapter.java — Implementa AuditRepositoryPort (JPA/Supabase)
+│   │           ├── entity
+│   │           │   └── AuditReportEntity.java — JPA entity para audit_reports
+│   │           └── repository
+│   │               └── SpringDataAuditRepository.java — Spring Data JPA repository
+│   └── config
+│       ├── OpenApiConfig.java — Configuración OpenAPI/Swagger
+│       └── security
+│           └── RateLimitFilter.java — Filtro de rate limiting (Bucket4j)
+├── resources
+│   ├── application.yml — Configuración básica (spring.application, spring.ai.openai, etc.)
+│   ├── application-local.yml — Perfil local (H2, keys, model config)
+│   ├── application-prod.yml — Perfil prod (config de AI/keys/model para producción)
+│   └── db
+│       └── migration
+│           ├── V1__init_audit_schema.sql
+│           └── V2__enable_rls_security.sql
+└── test
+    └── java
+        └── com.amalakaky.aegiscode.architecture
+            └── HexagonalArchitectureTest.java — Pruebas ArchUnit (reglas hexagonales)
+
+Leyenda
+- Puertos: interfaces en `application.port.*` describen contratos.
+- Casos de uso: `AnalyzeCodeUseCaseImpl` orquesta el flujo (IA → remediación → persistencia).
+- Adaptadores: `in` expone la aplicación (REST/Web), `out` implementa los puertos hacia infra (IA, DB).
+- Fichero PlantUML: `architecture.puml` (en este mismo directorio) para renderizar visualmente.
+
+Cómo renderizar el PlantUML (si tienes plantuml y Java instalado):
+
+```bash
+# desde la raíz del proyecto
+plantuml docs/architecture.puml -o docs
+# o usar extension de tu editor (VSCode/IntelliJ) para previsualizar
+```
+
