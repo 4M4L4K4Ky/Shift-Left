@@ -1,9 +1,12 @@
 package com.amalakaky.aegiscode.domain.model;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Getter
 public class AuditReport {
 
     private final String scanId;
@@ -34,14 +37,7 @@ public class AuditReport {
         this.status = AuditStatus.FAILED;
     }
 
-    public String getScanId() {
-        return this.scanId;
-    }
-
-    public AuditStatus getStatus() {
-        return this.status;
-    }
-
+    // Sobrescribimos el getter para mantener tu protección explícita con Collections.unmodifiableList
     public List<Vulnerability> getVulnerabilities() {
         return Collections.unmodifiableList(this.vulnerabilities);
     }

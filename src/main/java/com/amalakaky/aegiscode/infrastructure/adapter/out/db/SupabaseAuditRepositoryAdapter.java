@@ -2,13 +2,13 @@ package com.amalakaky.aegiscode.infrastructure.adapter.out.db;
 
 import com.amalakaky.aegiscode.application.port.out.db.AuditRepositoryPort;
 import com.amalakaky.aegiscode.domain.model.AuditReport;
-import org.springframework.context.annotation.Profile;
+import com.amalakaky.aegiscode.infrastructure.adapter.out.db.entity.AuditReportEntity;
+import com.amalakaky.aegiscode.infrastructure.adapter.out.db.repository.SpringDataAuditRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-@Profile({"prod", "supabase"})
 public class SupabaseAuditRepositoryAdapter implements AuditRepositoryPort {
 
     private final SpringDataAuditRepository jpaRepository;
@@ -19,24 +19,31 @@ public class SupabaseAuditRepositoryAdapter implements AuditRepositoryPort {
 
     @Override
     public AuditReport save(AuditReport report) {
-        AuditEntity entity = new AuditEntity(report.getScanId(), report.getStatus().name());
-        AuditEntity savedEntity = jpaRepository.save(entity);
+        // 1. Mapeo de Dominio a JPA
+        AuditReportEntity entity = AuditReportEntity.fromDomain(report);
+
+        // 2. Persistencia en Supabase (o H2 en local)
+        AuditReportEntity savedEntity = jpaRepository.save(entity);
+
+        // 3. Retorno al caso de uso (Dominio puro)
         return mapToDomain(savedEntity);
     }
 
     @Override
     public AuditReport findById(String scanId) {
-        Optional<AuditEntity> entityOpt = jpaRepository.findById(scanId);
+        Optional<AuditReportEntity> entityOpt = jpaRepository.findById(scanId);
         return entityOpt.map(this::mapToDomain).orElse(null);
     }
 
-    private AuditReport mapToDomain(AuditEntity entity) {
+    private AuditReport mapToDomain(AuditReportEntity entity) {
         AuditReport report = new AuditReport(entity.getScanId());
-        if ("COMPLETED".equals(entity.getStatus())) {
+
+        if (entity.getStatus() == AuditReport.AuditStatus.COMPLETED) {
             report.markAsCompleted();
-        } else if ("FAILED".equals(entity.getStatus())) {
+        } else if (entity.getStatus() == AuditReport.AuditStatus.FAILED) {
             report.markAsFailed();
         }
+
         return report;
     }
 }
