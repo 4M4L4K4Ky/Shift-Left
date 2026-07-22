@@ -18,9 +18,9 @@ spring:
 
   ai:
     openai:
-      base-url: https://generativelanguage.googleapis.com/v1beta/openai
-      api-key: ${GEMINI_API_KEY}
+      base-url: https://api.groq.com/openai
+      api-key: ${GROQ_API_KEY}
       chat:
         options:
-          model: gemini-1.5-flash
-          temperature: 0.2
+          model: llama-3.3-70b-versatile # Modelo LLaMA 3 de 70B, ideal para análisis de código
+          temperature: 0.1
