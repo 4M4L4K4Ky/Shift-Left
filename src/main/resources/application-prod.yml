@@ -18,12 +18,9 @@ spring:
 
   ai:
     openai:
-      enabled: false
-    vertex:
-      ai:
-        gemini:
-          api-key: ${GEMINI_API_KEY}
-
-    chat:
-      options:
-        model: gemini-2.0-flash
+      base-url: https://generativelanguage.googleapis.com/v1beta/openai
+      api-key: ${GEMINI_API_KEY}
+      chat:
+        options:
+          model: gemini-2.0-flash
+          temperature: 0.2
