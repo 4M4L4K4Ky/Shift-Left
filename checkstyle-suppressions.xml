@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1.2.dtd">
+
+<suppressions>
+    <!-- Relajamos Javadocs y parámetros finales para agilizar el desarrollo del TFM -->
+    <suppress checks="JavadocMethod" files=".*"/>
+    <suppress checks="JavadocVariable" files=".*"/>
+    <suppress checks="JavadocType" files=".*"/>
+    <suppress checks="FinalParameters" files=".*"/>
+    <suppress checks="DesignForExtension" files=".*"/>
+</suppressions>
