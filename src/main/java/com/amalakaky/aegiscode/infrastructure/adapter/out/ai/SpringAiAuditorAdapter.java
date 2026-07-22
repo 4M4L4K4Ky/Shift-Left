@@ -33,20 +33,18 @@ public class SpringAiAuditorAdapter implements AuditorAgentPort {
     }
 
     private Optional<Vulnerability> mapToDomain(AuditorResponse response) {
-        Optional<Vulnerability> result = Optional.empty();
-
-        if (response != null && response.cweId() != null) {
-            SeverityScore severity = new SeverityScore(response.severity());
-            result = Optional.of(new Vulnerability(
-                    response.cweId(),
-                    severity,
-                    response.description(),
-                    null
-            ));
+        if (response == null || response.cweId() == null) {
+            return Optional.empty();
         }
 
-        return result;
+        return Optional.of(new Vulnerability(
+                response.cweId(),
+                new SeverityScore(response.severity()),
+                response.description(),
+                null
+        ));
     }
+
 }
 
 record AuditorResponse(String cweId, int severity, String description) {}

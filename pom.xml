@@ -23,7 +23,7 @@
         <archunit.version>1.3.0</archunit.version>
     </properties>
 
-    <!-- REPOSITORIO NECESARIO PARA SPRING AI MILESTONES -->
+    <!-- Repositorio necesario para versiones Milestone de Spring AI -->
     <repositories>
         <repository>
             <id>spring-milestones</id>
@@ -36,26 +36,74 @@
     </repositories>
 
     <dependencies>
-        <!-- Core Spring & Web -->
+        <!-- ========================================== -->
+        <!-- CORE SPRING & WEB                          -->
+        <!-- ========================================== -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Spring AI (Core) -->
+        <!-- ========================================== -->
+        <!-- SPRING AI & LLM INTEGRATION                -->
+        <!-- ========================================== -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-core</artifactId>
         </dependency>
+        <!-- Proveedor de IA (Añadido para inyectar ChatClient.Builder en los adaptadores) -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
+        </dependency>
 
-        <!-- Rate Limiting (DevSecOps) -->
+        <!-- ========================================== -->
+        <!-- PERSISTENCIA Y BASES DE DATOS              -->
+        <!-- ========================================== -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- ========================================== -->
+        <!-- SEGURIDAD Y DEVSECOPS                      -->
+        <!-- ========================================== -->
         <dependency>
             <groupId>com.bucket4j</groupId>
             <artifactId>bucket4j-core</artifactId>
             <version>8.10.1</version>
         </dependency>
 
-        <!-- Testing & Arquitectura -->
+        <!-- ========================================== -->
+        <!-- DOCUMENTACIÓN API (OpenAPI / Swagger)      -->
+        <!-- ========================================== -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.5.0</version>
+        </dependency>
+
+        <!-- ========================================== -->
+        <!-- TESTING Y ARQUITECTURA (ArchUnit)          -->
+        <!-- ========================================== -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -66,32 +114,6 @@
             <artifactId>archunit-junit5</artifactId>
             <version>${archunit.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.5.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
-        <!-- Soporte para JPA y Jakarta Persistence (Hibernate) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-
-        <!-- Motor de Migraciones Flyway -->
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-database-postgresql</artifactId>
         </dependency>
     </dependencies>
 
@@ -109,20 +131,13 @@
 
     <build>
         <plugins>
+            <!-- Plugin de empaquetado Spring Boot -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-            <!-- PLUGIN DE CHECKSTYLE PARA EL PRE-COMMIT HOOK -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.3.1</version>
-                <configuration>
-                    <!-- Permite pasar el commit sin fallar hasta que definamos las reglas estrictas -->
-                    <failsOnError>false</failsOnError>
-                </configuration>
-            </plugin>
+
+            <!-- Plugin de Checkstyle unificado para validación estática -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
@@ -132,7 +147,6 @@
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>true</failsOnError>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                    <!-- Desactivamos reglas obsoletas para centrarnos en diseño y arquitectura -->
                     <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
                     <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
                 </configuration>

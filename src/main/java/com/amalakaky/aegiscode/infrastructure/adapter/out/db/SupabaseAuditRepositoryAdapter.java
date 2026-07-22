@@ -2,11 +2,13 @@ package com.amalakaky.aegiscode.infrastructure.adapter.out.db;
 
 import com.amalakaky.aegiscode.application.port.out.db.AuditRepositoryPort;
 import com.amalakaky.aegiscode.domain.model.AuditReport;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
+@Profile({"prod", "supabase"})
 public class SupabaseAuditRepositoryAdapter implements AuditRepositoryPort {
 
     private final SpringDataAuditRepository jpaRepository;

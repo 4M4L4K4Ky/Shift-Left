@@ -6,9 +6,11 @@ import com.amalakaky.aegiscode.application.port.out.ai.RemediationAgentPort;
 import com.amalakaky.aegiscode.application.port.out.db.AuditRepositoryPort;
 import com.amalakaky.aegiscode.domain.model.AuditReport;
 import com.amalakaky.aegiscode.domain.model.Vulnerability;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Service
 public class AnalyzeCodeUseCaseImpl implements AnalyzeCodeUseCase {
 
     private final AuditorAgentPort auditorAgent;
