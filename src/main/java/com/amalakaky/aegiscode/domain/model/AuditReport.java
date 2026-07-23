@@ -1,12 +1,16 @@
 package com.amalakaky.aegiscode.domain.model;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 @Getter
+@ToString
+@EqualsAndHashCode
 public class AuditReport {
 
     private final String scanId;
@@ -37,7 +41,7 @@ public class AuditReport {
         this.status = AuditStatus.FAILED;
     }
 
-    // Sobrescribimos el getter para mantener tu protección explícita con Collections.unmodifiableList
+    // Sin @Override. Protege la colección interna frente a modificaciones externas no controladas.
     public List<Vulnerability> getVulnerabilities() {
         return Collections.unmodifiableList(this.vulnerabilities);
     }
