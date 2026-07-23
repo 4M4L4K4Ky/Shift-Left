@@ -69,13 +69,23 @@ components:
       type: object
       required:
         - sourceCode
+        - parametro1  # Descomenta o renombra según tus necesidades
+        - parametro2
       properties:
         sourceCode:
           type: string
           minLength: 1
           maxLength: 50000
           description: Fragmento o clase de código fuente a auditar.
-          example: "public void query(String id) { String sql = 'SELECT * FROM users WHERE id = ' + id; }"
+          example: "public void query(String id) { String sql = \"SELECT * FROM users WHERE id = \" + id; }"
+        parametro1:
+          type: string
+          description: Descripción de tu primer parámetro faltante.
+          example: "JAVA"
+        parametro2:
+          type: string
+          description: Descripción de tu segundo parámetro faltante.
+          example: "PROYECTO-TFM-01"
 
     GitHubScanRequest:
       type: object
