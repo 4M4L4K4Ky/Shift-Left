@@ -75,7 +75,7 @@ components:
           minLength: 1
           maxLength: 50000
           description: Fragmento o clase de código fuente a auditar.
-          example: "public void query(String id) { String sql = \"SELECT * FROM users WHERE id = \" + id; }"
+          example: "public void query(String id) { String sql = 'SELECT * FROM users WHERE id = ' + id; }"
 
     GitHubScanRequest:
       type: object
@@ -138,4 +138,4 @@ components:
         remediationPatch:
           type: string
           description: Parche seguro generado por el Remediation Agent.
-          example: "PreparedStatement stmt = conn.prepareStatement(\"SELECT * FROM users WHERE id = ?\");"
+          example: PreparedStatement stmt = conn.prepareStatement(?)

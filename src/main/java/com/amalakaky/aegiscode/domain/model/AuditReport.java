@@ -1,16 +1,14 @@
 package com.amalakaky.aegiscode.domain.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@Getter
-@ToString
-@EqualsAndHashCode
+@Builder
+@Data
+@AllArgsConstructor
 public class AuditReport {
 
     private final String scanId;

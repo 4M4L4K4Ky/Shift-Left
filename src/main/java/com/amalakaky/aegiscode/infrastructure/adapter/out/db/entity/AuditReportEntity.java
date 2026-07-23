@@ -2,19 +2,14 @@ package com.amalakaky.aegiscode.infrastructure.adapter.out.db.entity;
 
 import com.amalakaky.aegiscode.domain.model.AuditReport;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "audit_reports")
-@Getter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 public class AuditReportEntity {
 
     @Id
