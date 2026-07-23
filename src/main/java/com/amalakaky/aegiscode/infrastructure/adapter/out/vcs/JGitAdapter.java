@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.List;
+import java.nio.file.Path;
+import java.io.IOException;
+import java.util.stream.Stream;
 
 @Slf4j
 @Component
@@ -61,7 +64,15 @@ public class JGitAdapter implements GitProviderPort {
 
     // Método dummy, asumo que ya tienes implementada la búsqueda recursiva de archivos .java
     private List<File> extractJavaFiles(File directory) {
-        // Tu lógica de filtrado de archivos aquí
-        return List.of();
+        try (Stream<Path> paths = Files.walk(directory.toPath())) {
+            return paths
+                    .filter(Files::isRegularFile)
+                    .filter(path -> path.toString().endsWith(".java"))
+                    .map(Path::toFile)
+                    .toList();
+        } catch (IOException e) {
+            log.error("Fallo de I/O al recorrer el árbol del repositorio en {}: {}", directory.getAbsolutePath(), e.getMessage());
+            throw new IllegalStateException("Error al extraer archivos Java", e);
+        }
     }
 }

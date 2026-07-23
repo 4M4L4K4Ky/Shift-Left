@@ -213,7 +213,6 @@
                                 <unhandledException>true</unhandledException>
                                 <useOptional>false</useOptional>
                                 <additionalModelTypeAnnotations>
-                                    @lombok.Builder
                                     @lombok.NoArgsConstructor
                                     @lombok.AllArgsConstructor
                                     @lombok.Generated
