@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 
 @Component
-public class SpringAiAuditorAdapter implements AuditorAgentPort {
+public class AiAuditorAdapter implements AuditorAgentPort {
 
     private static final String SYSTEM_PROMPT = """
         Eres Auditor Agent, experto en ciberseguridad ofensiva.
@@ -18,7 +18,7 @@ public class SpringAiAuditorAdapter implements AuditorAgentPort {
 
     private final ChatClient chatClient;
 
-    public SpringAiAuditorAdapter(ChatClient.Builder chatClientBuilder) {
+    public AiAuditorAdapter(ChatClient.Builder chatClientBuilder) {
         this.chatClient = chatClientBuilder.defaultSystem(SYSTEM_PROMPT).build();
     }
 

@@ -12,6 +12,7 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+    validate-on-migrate: false
   h2:
     console:
       enabled: true # Te permite ver la consola web de H2 en http://localhost:8080/h2-console si lo necesitas

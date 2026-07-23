@@ -1,6 +1,7 @@
 package com.amalakaky.aegiscode.infrastructure.adapter.in.rest.delegate;
 
 import com.amalakaky.aegiscode.application.port.in.AnalyzeCodeUseCase;
+import com.amalakaky.aegiscode.application.port.in.GetAuditStatisticsUseCase;
 import com.amalakaky.aegiscode.application.port.out.vcs.GitProviderPort;
 import com.amalakaky.aegiscode.domain.model.AuditReport;
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.AuditEngineApiDelegate;
@@ -12,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.charset.StandardCharsets;
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -21,10 +23,14 @@ public class AuditApiDelegateImpl implements AuditEngineApiDelegate {
 
     private final AnalyzeCodeUseCase analyzeCodeUseCase;
     private final GitProviderPort gitProviderPort;
+    private final GetAuditStatisticsUseCase getAuditStatisticsUseCase;
 
-    public AuditApiDelegateImpl(AnalyzeCodeUseCase analyzeCodeUseCase, GitProviderPort gitProviderPort) {
+    public AuditApiDelegateImpl(AnalyzeCodeUseCase analyzeCodeUseCase,
+                                GitProviderPort gitProviderPort,
+                                GetAuditStatisticsUseCase getAuditStatisticsUseCase) {
         this.analyzeCodeUseCase = analyzeCodeUseCase;
         this.gitProviderPort = gitProviderPort;
+        this.getAuditStatisticsUseCase = getAuditStatisticsUseCase;
     }
 
     @Override
@@ -53,15 +59,15 @@ public class AuditApiDelegateImpl implements AuditEngineApiDelegate {
     @Override
     public ResponseEntity auditGithubPost(GitHubScanRequestDto gitHubScanRequestDto) {
         String scanId = UUID.randomUUID().toString();
+        String repositoryUrl = gitHubScanRequestDto.getRepositoryUrl();
+        String branch = gitHubScanRequestDto.getBranch();
+
         log.info("INICIO [ScanID: {}] - Clonando repositorio GitHub: {} [Rama: {}]",
-                scanId, gitHubScanRequestDto.getRepositoryUrl(), gitHubScanRequestDto.getBranch());
+                scanId, repositoryUrl, branch);
 
         long startTime = System.currentTimeMillis();
         try {
-            List<File> sourceFiles = gitProviderPort.fetchSourceFiles(
-                    gitHubScanRequestDto.getRepositoryUrl(),
-                    gitHubScanRequestDto.getBranch()
-            );
+            List<File> sourceFiles = gitProviderPort.fetchSourceFiles(repositoryUrl, branch);
 
             log.info("JGit [ScanID: {}] - Extraídos {} ficheros .java para auditoría estática", scanId, sourceFiles.size());
 
@@ -69,15 +75,21 @@ public class AuditApiDelegateImpl implements AuditEngineApiDelegate {
             for (File file : sourceFiles) {
                 try {
                     codePayload.append("--- Archivo: ").append(file.getName()).append(" ---\n");
-                    codePayload.append(java.nio.file.Files.readString(file.toPath(), java.nio.charset.StandardCharsets.UTF_8)).append("\n\n");
+                    codePayload.append(Files.readString(file.toPath(), StandardCharsets.UTF_8)).append("\n\n");
                 } catch (java.io.IOException e) {
                     log.warn("No se pudo leer el archivo {}", file.getName());
                 }
             }
 
-            AuditReport domainReport =
-                    analyzeCodeUseCase.executeRepositoryScan(scanId, codePayload.toString()
+            AuditReport domainReport = analyzeCodeUseCase.executeRepositoryScan(
+                    scanId,
+                    codePayload.toString(),
+                    gitHubScanRequestDto.getRepositoryUrl(),
+                    gitHubScanRequestDto.getBranch()
             );
+            // Si tu caso de uso no los recibe, los asignamos aquí antes de mapear/persistir:
+            domainReport.setRepositoryUrl(repositoryUrl);
+            domainReport.setBranchName(branch);
 
             long duration = System.currentTimeMillis() - startTime;
             log.info("ÉXITO [ScanID: {}] - Auditoría de repositorio completada en {} ms", scanId, duration);
@@ -105,6 +117,21 @@ public class AuditApiDelegateImpl implements AuditEngineApiDelegate {
             log.error("Fallo de I/O al recorrer el árbol del repositorio en {}: {}", directory.getAbsolutePath(), e.getMessage());
             throw new IllegalStateException("Error al extraer archivos Java", e);
         }
+    }
+
+
+    @Override
+    public ResponseEntity<AuditStatisticsResponseDto> auditsStatsGet() {
+        log.info("INICIO - Consultando estadísticas globales de severidad de vulnerabilidades");
+
+        Map<Integer, Long> severityStats = getAuditStatisticsUseCase.getSeverityStatistics();
+
+        // Mapeo limpio al DTO generado por OpenAPI
+        AuditStatisticsResponseDto responseDto = new AuditStatisticsResponseDto();
+        // (Aquí asignas el mapa o la estructura que defina tu yaml de OpenAPI)
+
+        log.info("ÉXITO - Estadísticas analíticas consultadas correctamente");
+        return ResponseEntity.ok(responseDto);
     }
 
     private AuditReportDto mapDomainToDto(AuditReport domain) {

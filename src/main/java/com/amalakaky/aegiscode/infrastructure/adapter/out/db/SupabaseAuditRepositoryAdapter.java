@@ -6,7 +6,7 @@ import com.amalakaky.aegiscode.domain.model.SeverityScore;
 import com.amalakaky.aegiscode.domain.model.Vulnerability;
 import com.amalakaky.aegiscode.infrastructure.adapter.out.db.entity.AuditReportEntity;
 import com.amalakaky.aegiscode.infrastructure.adapter.out.db.entity.VulnerabilityEntity;
-import com.amalakaky.aegiscode.infrastructure.adapter.out.db.repository.SpringDataAuditRepository;
+import com.amalakaky.aegiscode.infrastructure.adapter.out.db.repository.DataAuditRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -14,21 +14,16 @@ import java.util.Optional;
 @Repository
 public class SupabaseAuditRepositoryAdapter implements AuditRepositoryPort {
 
-    private final SpringDataAuditRepository jpaRepository;
+    private final DataAuditRepository jpaRepository;
 
-    public SupabaseAuditRepositoryAdapter(SpringDataAuditRepository jpaRepository) {
+    public SupabaseAuditRepositoryAdapter(DataAuditRepository jpaRepository) {
         this.jpaRepository = jpaRepository;
     }
 
     @Override
     public AuditReport save(AuditReport report) {
-        // 1. Mapeo de Dominio a JPA (con cascada de vulnerabilidades)
         AuditReportEntity entity = AuditReportEntity.fromDomain(report);
-
-        // 2. Persistencia en Supabase (o H2 en local)
         AuditReportEntity savedEntity = jpaRepository.save(entity);
-
-        // 3. Retorno al caso de uso mapeando de vuelta la entidad completa con sus vulnerabilidades
         return mapToDomain(savedEntity);
     }
 
@@ -41,13 +36,15 @@ public class SupabaseAuditRepositoryAdapter implements AuditRepositoryPort {
     private AuditReport mapToDomain(AuditReportEntity entity) {
         AuditReport report = new AuditReport(entity.getScanId());
 
+        report.setRepositoryUrl(entity.getRepositoryUrl());
+        report.setBranchName(entity.getBranchName());
+
         if (entity.getStatus() == AuditReport.AuditStatus.COMPLETED) {
             report.markAsCompleted();
         } else if (entity.getStatus() == AuditReport.AuditStatus.FAILED) {
             report.markAsFailed();
         }
 
-        // Mapeo inverso: de VulnerabilityEntity (JPA) a Vulnerability (Dominio)
         if (entity.getVulnerabilities() != null) {
             for (VulnerabilityEntity vEntity : entity.getVulnerabilities()) {
                 Vulnerability vulnerability = new Vulnerability(

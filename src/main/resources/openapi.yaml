@@ -63,14 +63,28 @@ paths:
         '500':
           description: Fallo crítico en infraestructura (Error de clonado JGit o saturación en Groq LPU).
 
+  /api/v1/audits/stats:
+    get:
+      tags:
+        - Audit Engine
+      summary: Consulta estadísticas globales de vulnerabilidades agrupadas por severidad
+      operationId: auditsStatsGet
+      responses:
+        '200':
+          description: Estadísticas recuperadas con éxito
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditStatisticsResponse'
+        '500':
+          description: Error interno del servidor
+
 components:
   schemas:
     ScanRequest:
       type: object
       required:
         - sourceCode
-        - parametro1  # Descomenta o renombra según tus necesidades
-        - parametro2
       properties:
         sourceCode:
           type: string
@@ -78,14 +92,6 @@ components:
           maxLength: 50000
           description: Fragmento o clase de código fuente a auditar.
           example: "public void query(String id) { String sql = \"SELECT * FROM users WHERE id = \" + id; }"
-        parametro1:
-          type: string
-          description: Descripción de tu primer parámetro faltante.
-          example: "JAVA"
-        parametro2:
-          type: string
-          description: Descripción de tu segundo parámetro faltante.
-          example: "PROYECTO-TFM-01"
 
     GitHubScanRequest:
       type: object
@@ -123,6 +129,14 @@ components:
           description: Listado de hallazgos detectados y remediados por la IA.
           items:
             $ref: '#/components/schemas/Vulnerability'
+        repositoryUrl:
+          type: string
+          description: URL del repositorio auditado.
+          example: "https://github.com/amalakaky/vulnerable-app-demo.git"
+        branchName:
+          type: string
+          description: Rama del repositorio auditado.
+          example: "main"
 
     Vulnerability:
       type: object
@@ -148,4 +162,14 @@ components:
         remediationPatch:
           type: string
           description: Parche seguro generado por el Remediation Agent.
-          example: PreparedStatement stmt = conn.prepareStatement(?)
+          example: "PreparedStatement stmt = conn.prepareStatement(?);"
+
+    AuditStatisticsResponse:
+      type: object
+      properties:
+        severityCounts:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int64
+          description: Mapa con el conteo de vulnerabilidades agrupadas por su nivel de severidad.

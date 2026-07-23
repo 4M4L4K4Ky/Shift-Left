@@ -59,20 +59,21 @@ public class AnalyzeCodeUseCaseImpl implements AnalyzeCodeUseCase {
         report.addVulnerability(mitigatedVuln);
     }
 
-    // ==========================================
-    // NUEVO FLUJO MASIVO (/api/v1/audit/github)
-    // ==========================================
     @Override
-    public AuditReport executeRepositoryScan(String scanId, String concatenatedSourceCode) {
+    public AuditReport executeRepositoryScan(String scanId, String concatenatedSourceCode, String repositoryUrl, String branchName) {
         AuditReport report = new AuditReport(scanId);
 
-        // El nuevo adaptador LLaMA 3 analiza todo el código extraído por JGit
+        // Asignamos el contexto de origen de manera inmutable/controlada al dominio
+        report.setRepositoryUrl(repositoryUrl);
+        report.setBranchName(branchName);
+
+        // El adaptador LLaMA 3 analiza todo el código extraído por JGit
         List<Vulnerability> detectedVulns = repositoryScanner.scanRepository(concatenatedSourceCode);
 
         // Agregamos todas las vulnerabilidades detectadas al reporte
         detectedVulns.forEach(report::addVulnerability);
 
         report.markAsCompleted();
-        return repository.save(report); // Reutilizamos tu persistencia
+        return repository.save(report);
     }
 }

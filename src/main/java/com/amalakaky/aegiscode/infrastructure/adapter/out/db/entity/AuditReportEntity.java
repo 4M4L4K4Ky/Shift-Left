@@ -31,17 +31,22 @@ public class AuditReportEntity {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    // Relación OneToMany con Cascade para persistir los hijos automáticamente
-// Inicialización directa inline sin requerir @Builder.Default
+    @Column(name = "repository_url")
+    private String repositoryUrl;
+
+    @Column(name = "branch_name")
+    private String branchName;
+
     @OneToMany(mappedBy = "auditReport", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<VulnerabilityEntity> vulnerabilities = new ArrayList<>();
 
     @Builder
-    public AuditReportEntity(String scanId, AuditReport.AuditStatus status,
-                             LocalDateTime createdAt, List<VulnerabilityEntity> vulnerabilities) {
+    public AuditReportEntity(String scanId, AuditReport.AuditStatus status, LocalDateTime createdAt, String repositoryUrl, String branchName, List<VulnerabilityEntity> vulnerabilities) {
         this.scanId = scanId;
         this.status = status;
         this.createdAt = createdAt;
+        this.repositoryUrl = repositoryUrl;
+        this.branchName = branchName;
         if (vulnerabilities != null) {
             this.vulnerabilities = vulnerabilities;
         }
@@ -52,6 +57,8 @@ public class AuditReportEntity {
                 .scanId(report.getScanId())
                 .status(report.getStatus())
                 .createdAt(LocalDateTime.now())
+                .repositoryUrl(report.getRepositoryUrl())
+                .branchName(report.getBranchName())
                 .build();
 
         if (report.getVulnerabilities() != null) {

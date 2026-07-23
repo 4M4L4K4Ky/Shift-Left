@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class SpringAiRepositoryScannerAdapter implements RepositoryScannerPort {
+public class AiRepositoryScannerAdapter implements RepositoryScannerPort {
 
     private static final String REPO_SYSTEM_PROMPT = """
         Eres un Auditor DevSecOps experto en Java y Spring Boot. Analiza el código fuente proporcionado.
@@ -40,7 +40,7 @@ public class SpringAiRepositoryScannerAdapter implements RepositoryScannerPort {
     private final ChatModel chatModel;
     private final ObjectMapper objectMapper;
 
-    public SpringAiRepositoryScannerAdapter(ChatModel chatModel, ObjectMapper objectMapper) {
+    public AiRepositoryScannerAdapter(ChatModel chatModel, ObjectMapper objectMapper) {
         this.chatModel = chatModel;
         this.objectMapper = objectMapper;
     }

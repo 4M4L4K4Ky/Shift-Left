@@ -14,6 +14,8 @@ public class AuditReport {
     private final String scanId;
     private final List<Vulnerability> vulnerabilities;
     private AuditStatus status;
+    private String repositoryUrl;
+    private String branchName;
 
     public enum AuditStatus {
         IN_PROGRESS, COMPLETED, FAILED
