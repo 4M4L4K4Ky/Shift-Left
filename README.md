@@ -1,14 +1,10 @@
-Entendido. Asumo el rol. Pair programming activado al 100%. Cero ruido, enfoque absoluto en los entregables del TFM, código limpio y DevSecOps.
-
-Aquí tienes el README.md consolidado con todo lo que hemos iterado (arquitectura, IA, Flyway, RLS y CI/CD), empaquetado en una única caja de código para que no se rompa el formato al copiar.
-
 # 🛡️ AegisCode AI - Shift-Left DevSecOps Platform
 
 ![Java](https://img.shields.io/badge/Java-21-orange.svg)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.0-brightgreen.svg)
 ![Architecture](https://img.shields.io/badge/Architecture-Hexagonal%20%2B%20DDD-blue.svg)
 ![Database](https://img.shields.io/badge/Database-Supabase%20%7C%20PostgreSQL-3ECF8E.svg)
-![AI](https://img.shields.io/badge/AI-Spring%20AI%20%2B%20Gemini-4285F4.svg)
+![AI](https://img.shields.io/badge/AI-Spring%20AI%20%2B%20Groq-4285F4.svg)
 ![Status](https://img.shields.io/badge/Status-Active%20Development-success.svg)
 
 Plataforma DevSecOps basada en una arquitectura multi-agente de Inteligencia Artificial. Diseñada para integrarse en etapas tempranas del ciclo de desarrollo (*Shift-Left*), interceptando, auditando y refactorizando código vulnerable mediante técnicas de *Clean Code* de forma totalmente automatizada.
@@ -98,6 +94,10 @@ git config core.hooksPath .githooks
 
 La aplicación soporta despliegue multi-entorno gracias al sistema de perfiles de Spring Boot.
 
+### Configuración de Arranque (Run/Debug Configurations en IntelliJ)
+Recuerda aplicar obligatoriamente el parámetro de red IPv4 en las VM options para evitar fallos de conectividad con los servicios externos:
+* **VM options:** `-Djava.net.preferIPv4Stack=true`
+
 ### Entorno Local (TDD y Pruebas Rápidas)
 Levanta la aplicación utilizando H2 In-Memory configurado en modo compatibilidad PostgreSQL. No requiere contenedores adicionales.
 
@@ -107,11 +107,11 @@ Levanta la aplicación utilizando H2 In-Memory configurado en modo compatibilida
 ```
 **Vía JAR compilado:**
 ```bash
-java -jar target/aegiscode-0.0.1-SNAPSHOT.jar --spring.profiles.active=local
+java -Djava.net.preferIPv4Stack=true -jar target/aegiscode-0.0.1-SNAPSHOT.jar --spring.profiles.active=local
 ```
 
-### Entorno Producción (Integración Supabase + Gemini)
-Ataca directamente a los recursos en la nube. Requiere inyectar las variables de entorno de seguridad (`SUPABASE_PASSWORD`, `GEMINI_API_KEY`).
+### Entorno Producción (Integración Supabase + Groq)
+Ataca directamente a los recursos en la nube. Requiere inyectar las variables de entorno de seguridad (`SUPABASE_PASSWORD`, `GROQ_API_KEY`).
 
 **Vía Maven:**
 ```bash
@@ -119,5 +119,5 @@ Ataca directamente a los recursos en la nube. Requiere inyectar las variables de
 ```
 **Vía JAR compilado:**
 ```bash
-java -jar target/aegiscode-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+java -Djava.net.preferIPv4Stack=true -jar target/aegiscode-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
 ```
