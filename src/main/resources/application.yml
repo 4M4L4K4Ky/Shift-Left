@@ -2,9 +2,9 @@ spring:
   application:
     name: aegiscode
 
-    flyway:
-      enabled: true
-      locations: classpath:db/migration
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
 
   ai:
     openai:
@@ -14,3 +14,9 @@ spring:
         options:
           model: llama-3.3-70b-versatile # Modelo LLaMA 3 de 70B, ideal para análisis de código
           temperature: 0.1
+
+
+app:
+  vcs:
+    github:
+      token: ${TOKEN}
