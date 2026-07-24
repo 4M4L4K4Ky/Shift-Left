@@ -21,4 +21,4 @@ spring:
 app:
   vcs:
     github:
-      token: ${TOKEN}
+      token: ${TOKEN:fallback-local-token}

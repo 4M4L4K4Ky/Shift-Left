@@ -4,19 +4,21 @@ spring:
     username: sa
     password: ''
     driver-class-name: org.h2.Driver
+
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: validate
     show-sql: true
+
   flyway:
     enabled: true
     locations: classpath:db/migration
     validate-on-migrate: false
+
   h2:
     console:
-      enabled: true # Te permite ver la consola web de H2 en http://localhost:8080/h2-console si lo necesitas
-
+      enabled: true
 
   ai:
     openai:
@@ -26,3 +28,4 @@ spring:
         options:
           model: llama-3.3-70b-versatile # Modelo LLaMA 3 de 70B, ideal para análisis de código
           temperature: 0.1
+

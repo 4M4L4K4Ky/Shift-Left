@@ -1,4 +1,4 @@
--- Creamos una vista optimizada en PostgreSQL que encapsula el GROUP BY
+-- Vista analítica para el cálculo agregado de severidades
 CREATE OR REPLACE VIEW view_vulnerability_severity_stats AS
 SELECT
     severity,

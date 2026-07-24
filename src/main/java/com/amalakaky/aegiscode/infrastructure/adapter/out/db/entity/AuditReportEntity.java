@@ -21,23 +21,24 @@ import java.util.stream.Collectors;
 public class AuditReportEntity {
 
     @Id
-    @Column(name = "scan_id", nullable = false, updatable = false)
+    @Column(name = "scan_id", length = 36, nullable = false, updatable = false)
     private String scanId;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private AuditReport.AuditStatus status;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "repository_url")
+    @Column(name = "repository_url", length = 512)
     private String repositoryUrl;
 
-    @Column(name = "branch_name")
+    @Column(name = "branch_name", length = 100)
     private String branchName;
 
-    @OneToMany(mappedBy = "auditReport", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    // CORREGIDO: LAZY para evitar problemas de rendimiento y OOM en consultas masivas
+    @OneToMany(mappedBy = "auditReport", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<VulnerabilityEntity> vulnerabilities = new ArrayList<>();
 
     @Builder
