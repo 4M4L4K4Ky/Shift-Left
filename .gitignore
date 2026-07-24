@@ -39,3 +39,13 @@ application-local.properties
 # ==========================================
 .DS_Store
 /infra/
+
+*.md
+
+*.txt
+
+*.bat
+
+*.sh
+
+.idea_backup/
