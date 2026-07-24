@@ -81,10 +81,28 @@
             <scope>provided</scope>
         </dependency>
         <!-- Driver JDBC de Oracle -->
+        <!-- Driver de Oracle JDBC -->
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc11</artifactId>
-            <scope>runtime</scope>
+            <version>21.9.0.0</version>
+        </dependency>
+
+        <!-- Librerías obligatorias de Oracle PKI para leer el Wallet (mTLS) -->
+        <dependency>
+            <groupId>com.oracle.database.security</groupId>
+            <artifactId>oraclepki</artifactId>
+            <version>21.9.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.database.security</groupId>
+            <artifactId>osdt_core</artifactId>
+            <version>21.9.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.database.security</groupId>
+            <artifactId>osdt_cert</artifactId>
+            <version>21.9.0.0</version>
         </dependency>
         <!-- Oracle UCP (Universal Connection Pool) o HikariCP (Hikari es el default en Spring Boot 3) -->
 <!--        <dependency>-->

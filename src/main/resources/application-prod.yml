@@ -1,18 +1,9 @@
 spring:
   datasource:
-    url: jdbc:oracle:thin:@aegiscode_high?TNS_ADMIN=C:/Users/jlcastrom/Documents/WorkspaceIntelliJ/Shift-Left/infra/oracle-wallet
-    username: ${ORACLE_USER}
+    url: jdbc:oracle:thin:@(description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1521)(host=adb.eu-madrid-3.oraclecloud.com))(connect_data=(service_name=g8e9a9b11878921_aegiscodedb_high.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+    username: admin
     password: ${ORACLE_DB_PASSWORD}
     driver-class-name: oracle.jdbc.OracleDriver
-
-
-
-    hikari:
-      connection-timeout: 60000
-      maximum-pool-size: 5
-      minimum-idle: 2
-      idle-timeout: 300000
-      max-lifetime: 600000
 
   jpa:
     database-platform: org.hibernate.dialect.OracleDialect
@@ -24,6 +15,8 @@ spring:
         temp:
           use_jdbc_metadata_defaults: false
 
+  flyway:
+    enabled: false
 
   ai:
     openai:
@@ -31,5 +24,5 @@ spring:
       api-key: ${GROQ_API_KEY}
       chat:
         options:
-          model: llama-3.3-70b-versatile # Modelo LLaMA 3 de 70B, ideal para análisis de código
+          model: llama-3.3-70b-versatile
           temperature: 0.1
