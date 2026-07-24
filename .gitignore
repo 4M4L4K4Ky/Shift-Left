@@ -38,3 +38,4 @@ application-local.properties
 # Mac / SO
 # ==========================================
 .DS_Store
+/infra/
