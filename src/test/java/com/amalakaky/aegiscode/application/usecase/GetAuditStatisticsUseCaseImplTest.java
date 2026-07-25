@@ -1,4 +1,4 @@
-package com.amalakaky.aegiscode.application.port.usecase;
+package com.amalakaky.aegiscode.application.usecase;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -77,5 +77,4 @@ class GetAuditStatisticsUseCaseImplTest {
     assertThat(result.byCwe()).isEmpty();
     assertThat(result.recentAudits()).isEmpty();
   }
-
 }

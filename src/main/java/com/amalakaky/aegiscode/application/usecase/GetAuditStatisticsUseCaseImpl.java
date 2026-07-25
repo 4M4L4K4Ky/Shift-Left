@@ -1,4 +1,4 @@
-package com.amalakaky.aegiscode.application.port.usecase;
+package com.amalakaky.aegiscode.application.usecase;
 
 import com.amalakaky.aegiscode.application.port.in.GetAuditStatisticsUseCase;
 import com.amalakaky.aegiscode.application.port.out.db.AuditStatisticsRepositoryPort;
@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 /**
- * Caso de uso para consultar estadísticas agregadas de vulnerabilidades.
+ * Caso de uso para consultar estadisticas agregadas de vulnerabilidades.
  * 
  * Delega en el puerto de salida {@link AuditStatisticsRepositoryPort}
  * para poblar todas las secciones del dashboard.
@@ -40,6 +40,3 @@ public class GetAuditStatisticsUseCaseImpl implements GetAuditStatisticsUseCase 
     );
   }
 }
-
-
-

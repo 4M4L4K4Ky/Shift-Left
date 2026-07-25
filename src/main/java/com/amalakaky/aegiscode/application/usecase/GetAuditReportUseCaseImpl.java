@@ -1,4 +1,4 @@
-package com.amalakaky.aegiscode.application.port.usecase;
+package com.amalakaky.aegiscode.application.usecase;
 
 import com.amalakaky.aegiscode.application.port.in.GetAuditReportUseCase;
 import com.amalakaky.aegiscode.application.port.in.GetAuditStatisticsUseCase;
@@ -13,9 +13,9 @@ import org.springframework.stereotype.Service;
 /**
  * Caso de uso para generar el informe PDF global de la plataforma.
  * 
- * Obtiene las estadísticas del dashboard desde {@link GetAuditStatisticsUseCase},
- * complementa con el detalle de vulnerabilidades de las auditorías recientes
- * desde {@link AuditStatisticsRepositoryPort}, y delega la generación del PDF
+ * Obtiene las estadisticas del dashboard desde {@link GetAuditStatisticsUseCase},
+ * complementa con el detalle de vulnerabilidades de las auditorias recientes
+ * desde {@link AuditStatisticsRepositoryPort}, y delega la generacion del PDF
  * en {@link ReportGeneratorPort}.
  */
 @Service

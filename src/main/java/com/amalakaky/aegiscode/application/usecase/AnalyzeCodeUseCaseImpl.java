@@ -1,4 +1,4 @@
-package com.amalakaky.aegiscode.application.port.usecase;
+package com.amalakaky.aegiscode.application.usecase;
 
 import com.amalakaky.aegiscode.application.port.in.AnalyzeCodeUseCase;
 import com.amalakaky.aegiscode.application.port.out.ai.AuditorAgentPort;
@@ -13,14 +13,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Caso de uso principal que orquesta los pipelines de auditoría de código.
+ * Caso de uso principal que orquesta los pipelines de auditoria de codigo.
  * 
  * Implementa dos flujos:
  * 
- *   Scan inline (POST /api/scans): agente Auditor → agente Remediación
+ *   Scan inline (POST /api/scans): agente Auditor → agente Remediation
  *   Scan repositorio (POST /api/v1/audit/github): agente Scanner → todas las vulnerabilidades
  * 
- * Actúa como orquestador entre los puertos de salida (IA y persistencia).
+ * Actua como orquestador entre los puertos de salida (IA y persistencia).
  */
 @Service
 @Transactional
@@ -56,7 +56,7 @@ public class AnalyzeCodeUseCaseImpl implements AnalyzeCodeUseCase {
   }
 
   /**
-   * Aplica el agente de remediación a una vulnerabilidad detectada y la agrega al reporte.
+   * Aplica el agente de remediation a una vulnerabilidad detectada y la agrega al reporte.
    */
   private void applyRemediation(String sourceCode, Vulnerability vuln, AuditReport report) {
     String patch = remediationAgent.generateCleanPatch(sourceCode, vuln.getCweId());
@@ -85,6 +85,3 @@ public class AnalyzeCodeUseCaseImpl implements AnalyzeCodeUseCase {
     return repository.save(report);
   }
 }
-
-
-
