@@ -42,7 +42,18 @@ paths:
     post:
       operationId: auditGithubPost
       summary: Audita un repositorio de GitHub completo
-      description: Clona de forma temporal y superficial (depth=1) un repositorio público de GitHub, extrae los ficheros fuente Java y ejecuta el motor SAST.
+      description: >
+        <p>Clona de forma temporal y superficial (depth=1) un repositorio público de GitHub,
+        extrae los ficheros fuente Java y ejecuta el pipeline multi-agente completo:</p>
+
+        <ol>
+          <li><strong>Repository Scanner Agent</strong> — Descompone y analiza el código fuente extraído.</li>
+          <li><strong>Auditor Agent</strong> — Detecta vulnerabilidades OWASP Top 10 con análisis contextual.</li>
+          <li><strong>Remediation Agent</strong> — Genera parches seguros específicos para cada CWE detectado.</li>
+        </ol>
+
+        <p>El resultado incluye el listado de vulnerabilidades con su clasificación CWE, severidad,
+        descripción técnica y el código corregido propuesto.</p>
       tags:
         - Audit Engine
       requestBody:
@@ -51,17 +62,66 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/GitHubScanRequest'
+            example:
+              repositoryUrl: "https://github.com/4M4L4K4Ky/vulnerable-bank-api.git"
+              branch: "main"
       responses:
         '200':
-          description: Auditoría completada con éxito y persistida en Supabase.
+          description: >
+            <p>Auditoría completada con éxito. El repositorio se clonó, se analizaron los archivos
+            fuente y los resultados se persistieron en la base de datos (Supabase/Oracle).</p>
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuditReport'
+              example:
+                scanId: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                status: "COMPLETED"
+                repositoryUrl: "https://github.com/4M4L4K4Ky/vulnerable-bank-api.git"
+                branchName: "main"
+                vulnerabilities:
+                  - cweId: "CWE-89"
+                    severity:
+                      value: 9
+                    description: "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection') en PreparedStatement."
+                    remediationPatch: "public void query(String id) { String sql = \"SELECT * FROM users WHERE id = ?\"; PreparedStatement stmt = conn.prepareStatement(sql); stmt.setString(1, id); }"
+                  - cweId: "CWE-79"
+                    severity:
+                      value: 7
+                    description: "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') en parámetros de respuesta HTTP."
+                    remediationPatch: "import org.owasp.encoder.Encode; response.getWriter().write(Encode.forHtml(userInput));"
         '400':
-          description: Parámetros inválidos o URL bloqueada por políticas de seguridad (Prevención SSRF).
+          description: >
+            <p>Parámetros inválidos o URL bloqueada por políticas de seguridad.</p>
+            <ul>
+              <li>La URL debe cumplir el patrón <code>^https://github\.com/[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+\.git$</code></li>
+              <li>El branch solo admite caracteres alfanuméricos, guiones y puntos.</li>
+              <li>URLs que no apunten a github.com son rechazadas (prevención SSRF).</li>
+            </ul>
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid repository URL. Only public GitHub repositories are allowed."
         '500':
-          description: Fallo crítico en infraestructura (Error de clonado JGit o saturación en Groq LPU).
+          description: >
+            <p>Fallo crítico en infraestructura.</p>
+            <ul>
+              <li>Error de clonado con JGit (repositorio inexistente, privado o red caída).</li>
+              <li>Saturación en Groq LPU (Cloudflare rate limit o timeout del modelo).</li>
+              <li>Falla en la deserialización JSON de la respuesta del LLM.</li>
+            </ul>
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Failed to clone repository: https://github.com/4M4L4K4Ky/vulnerable-bank-api.git"
 
   /api/v1/audits/stats:
     get:
@@ -95,6 +155,10 @@ components:
 
     GitHubScanRequest:
       type: object
+      description: >
+        <p>Petición para auditar un repositorio público de GitHub.
+        El sistema clona el repositorio (shallow clone, depth=1), extrae todos los archivos
+        <code>.java</code> y ejecuta el pipeline multi-agente de análisis estático.</p>
       required:
         - repositoryUrl
         - branch
@@ -102,14 +166,19 @@ components:
         repositoryUrl:
           type: string
           pattern: '^https:\/\/github\.com\/[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+\.git$'
-          description: URL HTTPS del repositorio público de GitHub.
-          example: "https://github.com/amalakaky/vulnerable-app-demo.git"
+          description: >
+            <p>URL HTTPS completa del repositorio público de GitHub.
+            Debe terminar en <code>.git</code>. Solo repositorios públicos en github.com son aceptados
+            (política de seguridad para prevención de SSRF).</p>
+          example: "https://github.com/4M4L4K4Ky/vulnerable-bank-api.git"
         branch:
           type: string
           pattern: '^[a-zA-Z0-9_.-]+$'
           minLength: 1
           maxLength: 255
-          description: Rama objetivo del repositorio a auditar.
+          description: >
+            <p>Rama del repositorio a auditar. Se recomienda usar <code>main</code> o <code>master</code>.
+            Caracteres permitidos: alfanuméricos, guiones bajos, guiones medios y puntos.</p>
           example: "main"
 
     AuditReport:

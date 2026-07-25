@@ -9,13 +9,16 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-    @Bean
-    public OpenAPI aegisCodeOpenAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("AegisCode DevSecOps API")
-                        .description("Shift-Left Multi-Agent Architecture API")
-                        .version("Current")
-                        .contact(new Contact().name("AegisCode Team")));
-    }
+  @Bean
+  public OpenAPI aegisCodeOpenApi() {
+    return new OpenAPI()
+        .info(new Info()
+            .title("AegisCode DevSecOps API")
+            .description("Shift-Left Multi-Agent Architecture API")
+            .version("Current")
+            .contact(new Contact().name("AegisCode Team")));
+  }
 }
+
+
+
