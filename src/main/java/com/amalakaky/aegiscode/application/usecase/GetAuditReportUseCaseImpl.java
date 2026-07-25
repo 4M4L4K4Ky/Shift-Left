@@ -10,14 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-/**
- * Caso de uso para generar el informe PDF global de la plataforma.
- * 
- * Obtiene las estadisticas del dashboard desde {@link GetAuditStatisticsUseCase},
- * complementa con el detalle de vulnerabilidades de las auditorias recientes
- * desde {@link AuditStatisticsRepositoryPort}, y delega la generacion del PDF
- * en {@link ReportGeneratorPort}.
- */
 @Service
 public class GetAuditReportUseCaseImpl implements GetAuditReportUseCase {
 
@@ -39,10 +31,6 @@ public class GetAuditReportUseCaseImpl implements GetAuditReportUseCase {
   public byte[] getGlobalReport() {
     var dashboard = statsUseCase.getDashboardStats();
 
-    List<CweStat> topCwes = dashboard.byCwe().stream()
-        .map(c -> new CweStat(c.cweId(), c.count()))
-        .collect(Collectors.toList());
-
     List<AuditDetail> recentAudits = statsPort.findRecentAudits(10).stream()
         .map(a -> new AuditDetail(
             a.scanId(),
@@ -57,7 +45,7 @@ public class GetAuditReportUseCaseImpl implements GetAuditReportUseCase {
         dashboard.totalAudits(),
         dashboard.totalVulnerabilities(),
         dashboard.bySeverity(),
-        topCwes,
+        dashboard.byCwe(),
         recentAudits
     );
 

@@ -19,11 +19,8 @@ import org.springframework.stereotype.Component;
  * Eclipse JGit para clonar repositorios GitHub.
  * 
  * Realiza un clon superficial (shallow clone, depth=1) para minimizar el tiempo
- * de descarga y el espacio en disco. La autenticación se realiza mediante
+ * de descarga y el espacio en disco. La autenticacion se realiza mediante
  * GitHub Personal Access Token configurado en {@code app.vcs.github.token}.
- * 
- * Pendiente: la limpieza del directorio temporal no está implementada
- * en el bloque {@code finally}.
  */
 @Slf4j
 @Component
@@ -62,7 +59,16 @@ public class JGitAdapter implements GitProviderPort {
       log.error("Fallo crítico en infraestructura JGit: {}", e.getMessage(), e);
       throw new IllegalStateException("Error al clonar el repositorio: " + repositoryUrl, e);
     } finally {
-      // TODO: limpiar directorio temporal tempDir después de procesar los archivos
+      if (tempDir != null) {
+        try (Stream<Path> paths = Files.walk(tempDir.toPath())) {
+          paths.sorted(java.util.Comparator.reverseOrder())
+              .map(Path::toFile)
+              .forEach(File::delete);
+          log.info("Directorio temporal eliminado: {}", tempDir.getAbsolutePath());
+        } catch (IOException e) {
+          log.warn("No se pudo eliminar el directorio temporal: {}", tempDir.getAbsolutePath(), e);
+        }
+      }
     }
   }
 

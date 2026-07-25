@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.amalakaky.aegiscode.application.port.out.db.AuditStatisticsRepositoryPort;
+import com.amalakaky.aegiscode.domain.model.CweCount;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -29,8 +30,8 @@ class GetAuditStatisticsUseCaseImplTest {
     when(port.totalVulnerabilities()).thenReturn(100L);
     when(port.getVulnerabilitiesBySeverity()).thenReturn(Map.of(5, 50L, 3, 30L));
     when(port.countByCwe()).thenReturn(List.of(
-        new AuditStatisticsRepositoryPort.CweCount("CWE-89", 20L),
-        new AuditStatisticsRepositoryPort.CweCount("CWE-79", 15L)
+        new CweCount("CWE-89", 20L),
+        new CweCount("CWE-79", 15L)
     ));
     when(port.findRecentAudits(10)).thenReturn(List.of(
         new AuditStatisticsRepositoryPort.AuditSummary(

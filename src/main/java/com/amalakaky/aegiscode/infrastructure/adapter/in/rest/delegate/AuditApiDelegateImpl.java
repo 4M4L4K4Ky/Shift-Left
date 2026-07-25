@@ -124,10 +124,6 @@ public class AuditApiDelegateImpl implements AuditEngineApiDelegate {
           gitHubScanRequestDto.getRepositoryUrl(),
           gitHubScanRequestDto.getBranch()
       );
-      // Si tu caso de uso no los recibe, los asignamos aquí antes de mapear/persistir:
-      domainReport.setRepositoryUrl(repositoryUrl);
-      domainReport.setBranchName(branch);
-
       long duration = System.currentTimeMillis() - startTime;
       log.info("ÉXITO [ScanID: {}] - Repositorio auditado en {} ms", scanId, duration);
 

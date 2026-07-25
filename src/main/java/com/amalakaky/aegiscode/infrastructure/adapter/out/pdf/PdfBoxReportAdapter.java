@@ -1,8 +1,8 @@
 package com.amalakaky.aegiscode.infrastructure.adapter.out.pdf;
 
 import com.amalakaky.aegiscode.application.port.in.GetAuditReportUseCase.AuditDetail;
-import com.amalakaky.aegiscode.application.port.in.GetAuditReportUseCase.CweStat;
 import com.amalakaky.aegiscode.application.port.in.GetAuditReportUseCase.GlobalReportData;
+import com.amalakaky.aegiscode.domain.model.CweCount;
 import com.amalakaky.aegiscode.application.port.out.ReportGeneratorPort;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -392,7 +392,7 @@ public class PdfBoxReportAdapter implements ReportGeneratorPort {
       writeLine(cs, BOLD, 9, col2 + 4, y - 5, "Total");
       y -= 22;
 
-      for (CweStat cwe : data.topCwes()) {
+      for (CweCount cwe : data.topCwes()) {
         if (y < MARGIN + 20) {
           continue;
         }

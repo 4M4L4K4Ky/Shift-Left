@@ -20,11 +20,11 @@ import org.springframework.transaction.annotation.Transactional;
  * por Spring {@link Transactional}.
  */
 @Repository
-public class SupabaseAuditRepositoryAdapter implements AuditRepositoryPort {
+public class OracleAuditRepositoryAdapter implements AuditRepositoryPort {
 
   private final DataAuditRepository jpaRepository;
 
-  public SupabaseAuditRepositoryAdapter(DataAuditRepository jpaRepository) {
+  public OracleAuditRepositoryAdapter(DataAuditRepository jpaRepository) {
     this.jpaRepository = jpaRepository;
   }
 

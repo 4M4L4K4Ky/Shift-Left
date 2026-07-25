@@ -1,6 +1,7 @@
 package com.amalakaky.aegiscode.infrastructure.adapter.out.db;
 
 import com.amalakaky.aegiscode.application.port.out.db.AuditStatisticsRepositoryPort;
+import com.amalakaky.aegiscode.domain.model.CweCount;
 import com.amalakaky.aegiscode.infrastructure.adapter.out.db.entity.VulnerabilitySeverityStatsEntity;
 import com.amalakaky.aegiscode.infrastructure.adapter.out.db.repository.AuditSummaryProjection;
 import com.amalakaky.aegiscode.infrastructure.adapter.out.db.repository.DataAuditRepository;
@@ -34,7 +35,7 @@ public class AuditStatisticsAdapter implements AuditStatisticsRepositoryPort {
   }
 
   @Override
-  public Map getVulnerabilitiesBySeverity() {
+  public Map<Integer, Long> getVulnerabilitiesBySeverity() {
     return statsRepository.findAll().stream()
         .collect(Collectors.toMap(
             VulnerabilitySeverityStatsEntity::getSeverity,
