@@ -12,6 +12,16 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Caso de uso principal que orquesta los pipelines de auditoría de código.
+ * <p>
+ * Implementa dos flujos:
+ * <ul>
+ *   <li><b>Scan inline</b> (POST /api/scans): agente Auditor → agente Remediación</li>
+ *   <li><b>Scan repositorio</b> (POST /api/v1/audit/github): agente Scanner → todas las vulnerabilidades</li>
+ * </ul>
+ * Actúa como orquestador entre los puertos de salida (IA y persistencia).
+ */
 @Service
 @Transactional
 public class AnalyzeCodeUseCaseImpl implements AnalyzeCodeUseCase {
@@ -21,7 +31,6 @@ public class AnalyzeCodeUseCaseImpl implements AnalyzeCodeUseCase {
   private final RepositoryScannerPort repositoryScanner;
   private final AuditRepositoryPort repository;
 
-  // Inyectamos el nuevo puerto sin romper los anteriores
   public AnalyzeCodeUseCaseImpl(AuditorAgentPort auditorAgent,
                   RemediationAgentPort remediationAgent,
                   RepositoryScannerPort repositoryScanner,
@@ -32,9 +41,6 @@ public class AnalyzeCodeUseCaseImpl implements AnalyzeCodeUseCase {
     this.repository = repository;
   }
 
-  // ==========================================
-  // FLUJO ORIGINAL INTACTO (/api/scans)
-  // ==========================================
   @Override
   public AuditReport executeScan(String scanId, String sourceCode) {
     AuditReport report = new AuditReport(scanId);
@@ -49,6 +55,9 @@ public class AnalyzeCodeUseCaseImpl implements AnalyzeCodeUseCase {
     return repository.save(report);
   }
 
+  /**
+   * Aplica el agente de remediación a una vulnerabilidad detectada y la agrega al reporte.
+   */
   private void applyRemediation(String sourceCode, Vulnerability vuln, AuditReport report) {
     String patch = remediationAgent.generateCleanPatch(sourceCode, vuln.getCweId());
 
@@ -66,15 +75,10 @@ public class AnalyzeCodeUseCaseImpl implements AnalyzeCodeUseCase {
   public AuditReport executeRepositoryScan(String scanId, String concatenatedSourceCode,
       String repositoryUrl, String branchName) {
     AuditReport report = new AuditReport(scanId);
-
-    // Asignamos el contexto de origen de manera inmutable/controlada al dominio
     report.setRepositoryUrl(repositoryUrl);
     report.setBranchName(branchName);
 
-    // El adaptador LLaMA 3 analiza todo el código extraído por JGit
     List<Vulnerability> detectedVulns = repositoryScanner.scanRepository(concatenatedSourceCode);
-
-    // Agregamos todas las vulnerabilidades detectadas al reporte
     detectedVulns.forEach(report::addVulnerability);
 
     report.markAsCompleted();

@@ -5,6 +5,12 @@ import com.amalakaky.aegiscode.application.port.out.db.AuditStatisticsRepository
 import java.util.Map;
 import org.springframework.stereotype.Service;
 
+/**
+ * Caso de uso para consultar estadísticas agregadas de vulnerabilidades.
+ * <p>
+ * Delega en el puerto de salida {@link AuditStatisticsRepositoryPort}
+ * que consulta la vista de base de datos {@code view_vulnerability_severity_stats}.
+ */
 @Service
 public class GetAuditStatisticsUseCaseImpl implements GetAuditStatisticsUseCase {
 

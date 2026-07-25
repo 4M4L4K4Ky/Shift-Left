@@ -1,5 +1,11 @@
 package com.amalakaky.aegiscode.domain.model;
 
+/**
+ * Value Object que encapsula la puntuación de severidad de una vulnerabilidad.
+ * <p>
+ * El rango válido es de 1 a 10. Se valida en la construcción para mantener
+ * invariantes del dominio. Al ser un record, la igualdad es por valor.
+ */
 public record SeverityScore(int value) {
 
   private static final int MIN_SCORE = 1;

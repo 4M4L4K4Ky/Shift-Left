@@ -6,7 +6,7 @@ import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 
-@AnalyzeClasses(packages = "com.tuusuario.aegiscode")
+@AnalyzeClasses(packages = "com.amalakaky.aegiscode")
 public class HexagonalArchitectureTest {
 
   @ArchTest

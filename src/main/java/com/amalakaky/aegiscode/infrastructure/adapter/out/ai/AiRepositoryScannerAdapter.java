@@ -15,6 +15,15 @@ import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.stereotype.Component;
 
+/**
+ * Adaptador de infraestructura que implementa {@link RepositoryScannerPort}
+ * usando Groq (LLaMA 3.3 70B) vía Spring AI {@link ChatModel}.
+ * <p>
+ * A diferencia de {@link AiAuditorAdapter}, este adaptador escanea el código
+ * completo de un repositorio y detecta <b>todas</b> las vulnerabilidades OWASP
+ * Top 10 en una sola invocación. Procesa la respuesta JSON del LLM limpiando
+ * posibles artefactos markdown antes de deserializar.
+ */
 @Slf4j
 @Component
 public class AiRepositoryScannerAdapter implements RepositoryScannerPort {
@@ -65,7 +74,6 @@ public class AiRepositoryScannerAdapter implements RepositoryScannerPort {
 
       String rawJsonResponse = chatResponse.getResult().getOutput().getContent();
 
-      // TRACE CRÍTICO: Ver exactamente qué responde Groq en la consola
       log.info("--- INICIO RESPUESTA RAW DE GROQ ---");
       log.info("\n{}", rawJsonResponse);
       log.info("--- FIN RESPUESTA RAW DE GROQ ---");
@@ -75,7 +83,6 @@ public class AiRepositoryScannerAdapter implements RepositoryScannerPort {
         return List.of();
       }
 
-      // Limpieza robusta de markdown y posibles espacios
       String cleanJson = rawJsonResponse
           .replaceAll("(?s)```json\\s*", "")
           .replaceAll("(?s)```\\s*", "")
@@ -83,7 +90,6 @@ public class AiRepositoryScannerAdapter implements RepositoryScannerPort {
 
       log.info("JSON limpio para parsear: {}", cleanJson);
 
-      // Deserialización con Jackson
       RepoAuditorResponse response = objectMapper.readValue(cleanJson, RepoAuditorResponse.class);
 
       if (response == null || response.vulnerabilities() == null) {
@@ -104,14 +110,15 @@ public class AiRepositoryScannerAdapter implements RepositoryScannerPort {
           .collect(Collectors.toList());
 
     } catch (Exception e) {
-      // TRACE DE EXCEPCIÓN: Si falla el mapeo o hay texto basura, lo veremos con pelos y señales
       log.error("EXCEPCIÓN CRÍTICA procesando la respuesta de Groq: {}", e.getMessage(), e);
       return List.of();
     }
   }
 
+  /** Record interno para deserializar la respuesta JSON del LLM (lista de vulnerabilidades). */
   record RepoAuditorResponse(List<RepoVulnDto> vulnerabilities) {}
 
+  /** Record interno con los campos de cada vulnerabilidad detectada por el LLM. */
   record RepoVulnDto(String cweId, int severity, String description, String remediationPatch) {}
 }
 

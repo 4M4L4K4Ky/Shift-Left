@@ -11,6 +11,14 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Adaptador de infraestructura JPA que implementa {@link AuditRepositoryPort}.
+ * <p>
+ * Convierte entre el modelo del dominio ({@link AuditReport}) y la entidad
+ * JPA ({@link AuditReportEntity}) para persistencia en Oracle ATP (producción)
+ * o H2 (desarrollo local). Las transacciones de escritura son gestionadas
+ * por Spring {@link Transactional}.
+ */
 @Repository
 public class SupabaseAuditRepositoryAdapter implements AuditRepositoryPort {
 
@@ -35,9 +43,9 @@ public class SupabaseAuditRepositoryAdapter implements AuditRepositoryPort {
     return entityOpt.map(this::mapToDomain).orElse(null);
   }
 
+  /** Convierte entidad JPA a modelo de dominio. */
   private AuditReport mapToDomain(AuditReportEntity entity) {
     AuditReport report = new AuditReport(entity.getScanId());
-
     report.setRepositoryUrl(entity.getRepositoryUrl());
     report.setBranchName(entity.getBranchName());
 

@@ -22,6 +22,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+/**
+ * Implementación del delegado REST generado por OpenAPI.
+ * <p>
+ * Traduce las peticiones HTTP a llamadas a los puertos de entrada (casos de uso),
+ * manteniendo la lógica de presentación fuera del dominio. Sigue el patrón
+ * <b>Delegate Pattern</b> para separar el código generado del código manual.
+ * <p>
+ * Endpoints:
+ * <ul>
+ *   <li>{@code POST /api/scans} — audita código inline</li>
+ *   <li>{@code POST /api/v1/audit/github} — audita repositorio GitHub</li>
+ *   <li>{@code GET /api/v1/audits/stats} — estadísticas de severidad</li>
+ * </ul>
+ */
 @Slf4j
 @Component
 public class AuditApiDelegateImpl implements AuditEngineApiDelegate {
@@ -151,6 +165,7 @@ public class AuditApiDelegateImpl implements AuditEngineApiDelegate {
     return ResponseEntity.ok(responseDto);
   }
 
+  /** Convierte un {@link AuditReport} del dominio al DTO de respuesta. */
   private AuditReportDto mapDomainToDto(AuditReport domain) {
     AuditReportDto dto = new AuditReportDto();
     dto.scanId(domain.getScanId());

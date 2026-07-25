@@ -14,13 +14,23 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+/**
+ * Adaptador de infraestructura que implementa {@link GitProviderPort} usando
+ * Eclipse JGit para clonar repositorios GitHub.
+ * <p>
+ * Realiza un clon superficial (shallow clone, depth=1) para minimizar el tiempo
+ * de descarga y el espacio en disco. La autenticación se realiza mediante
+ * GitHub Personal Access Token configurado en {@code app.vcs.github.token}.
+ * <p>
+ * <b>Pendiente:</b> la limpieza del directorio temporal no está implementada
+ * en el bloque {@code finally}.
+ */
 @Slf4j
 @Component
 public class JgitAdapter implements GitProviderPort {
 
   private final String githubToken;
 
-  // Inyectamos el token de forma segura
   public JgitAdapter(@Value("${app.vcs.github.token}") String githubToken) {
     this.githubToken = githubToken;
   }
@@ -29,26 +39,22 @@ public class JgitAdapter implements GitProviderPort {
   public List<File> fetchSourceFiles(String repositoryUrl, String branch) {
     File tempDir = null;
     try {
-      // 1. Crear directorio temporal seguro (Mitigación DoS)
       tempDir = Files.createTempDirectory("aegiscode-repo-").toFile();
       log.info("Directorio temporal creado en: {}", tempDir.getAbsolutePath());
 
-      // 2. Configurar credenciales DevSecOps (PAT de GitHub)
       UsernamePasswordCredentialsProvider credentials =
           new UsernamePasswordCredentialsProvider(githubToken, "");
 
-      // 3. Clonado superficial (Shallow Clone) para máximo rendimiento
       log.info("Iniciando clonado seguro de {} (Rama: {})", repositoryUrl, branch);
       try (Git git = Git.cloneRepository()
           .setURI(repositoryUrl)
           .setBranch(branch)
           .setDirectory(tempDir)
           .setCredentialsProvider(credentials)
-          .setDepth(1) // VITAL: Ahorra red y almacenamiento
+          .setDepth(1)
           .call()) {
 
         log.info("Clonado exitoso. Extrayendo ficheros Java...");
-        // Aquí llamas a tu lógica para recorrer 'tempDir' y sacar los .java
         return extractJavaFiles(tempDir);
       }
 
@@ -56,12 +62,11 @@ public class JgitAdapter implements GitProviderPort {
       log.error("Fallo crítico en infraestructura JGit: {}", e.getMessage(), e);
       throw new IllegalStateException("Error al clonar el repositorio: " + repositoryUrl, e);
     } finally {
-      // IMPORTANTE: Un buen arquitecto siempre limpia la basura.
-      // Asegúrate de que el caso de uso o este adapter borre el tempDir tras pasárselo al LLM.
+      // TODO: limpiar directorio temporal tempDir después de procesar los archivos
     }
   }
 
-  // Método dummy, asumo que ya tienes implementada la búsqueda recursiva de archivos .java
+  /** Recorre recursivamente el directorio del repo y retorna todos los archivos .java. */
   private List<File> extractJavaFiles(File directory) {
     try (Stream<Path> paths = Files.walk(directory.toPath())) {
       return paths

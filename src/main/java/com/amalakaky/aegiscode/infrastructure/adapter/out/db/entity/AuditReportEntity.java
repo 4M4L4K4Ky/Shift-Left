@@ -20,6 +20,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Entidad JPA que mapea la tabla {@code audit_reports}.
+ * <p>
+ * Contiene el resultado de una auditoría: estado, metadatos del repositorio
+ * y la colección de vulnerabilidades detectadas (relación OneToMany).
+ * Se utiliza exclusivamente en la capa de infraestructura; el dominio trabaja
+ * con {@link AuditReport}.
+ */
 @Entity
 @Table(name = "audit_reports")
 @Getter
@@ -62,6 +70,7 @@ public class AuditReportEntity {
     }
   }
 
+  /** Convierte un {@link AuditReport} del dominio a esta entidad JPA. */
   public static AuditReportEntity fromDomain(AuditReport report) {
     AuditReportEntity entity = AuditReportEntity.builder()
         .scanId(report.getScanId())
