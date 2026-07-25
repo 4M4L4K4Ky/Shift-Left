@@ -26,3 +26,8 @@ spring:
         options:
           model: llama-3.3-70b-versatile
           temperature: 0.1
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
