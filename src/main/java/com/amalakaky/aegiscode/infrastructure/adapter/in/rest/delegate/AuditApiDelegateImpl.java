@@ -5,8 +5,11 @@ import com.amalakaky.aegiscode.application.port.in.GetAuditStatisticsUseCase;
 import com.amalakaky.aegiscode.application.port.out.vcs.GitProviderPort;
 import com.amalakaky.aegiscode.domain.model.AuditReport;
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.AuditEngineApiDelegate;
+import com.amalakaky.aegiscode.application.port.in.GetAuditStatisticsUseCase.DashboardStats;
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.AuditReportDto;
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.AuditStatisticsResponseDto;
+import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.AuditSummaryDto;
+import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.CweCountDto;
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.GitHubScanRequestDto;
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.ScanRequestDto;
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.VulnerabilityDto;
@@ -14,6 +17,8 @@ import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.VulnerabilityS
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -149,17 +154,36 @@ public class AuditApiDelegateImpl implements AuditEngineApiDelegate {
   public ResponseEntity<AuditStatisticsResponseDto> auditsStatsGet() {
     log.info("INICIO - Consultando estadisticas globales de severidad de vulnerabilidades");
 
-    Map<Integer, Long> severityStats = getAuditStatisticsUseCase.getSeverityStatistics();
+    DashboardStats stats = getAuditStatisticsUseCase.getDashboardStats();
 
     AuditStatisticsResponseDto responseDto = new AuditStatisticsResponseDto();
-    if (severityStats != null && !severityStats.isEmpty()) {
-      Map<String, Long> stringKeyedMap = severityStats.entrySet().stream()
-          .collect(Collectors.toMap(
-              e -> String.valueOf(e.getKey()),
-              Map.Entry::getValue
-          ));
-      responseDto.setSeverityCounts(stringKeyedMap);
-    }
+    responseDto.setTotalAudits(stats.totalAudits());
+    responseDto.setTotalVulnerabilities(stats.totalVulnerabilities());
+
+    Map<String, Long> severityCounts = stats.bySeverity().entrySet().stream()
+        .collect(Collectors.toMap(
+            e -> String.valueOf(e.getKey()),
+            Map.Entry::getValue
+        ));
+    responseDto.setSeverityCounts(severityCounts);
+
+    List<CweCountDto> byCwe = stats.byCwe().stream()
+        .map(item -> new CweCountDto(item.cweId(), item.count()))
+        .collect(Collectors.toList());
+    responseDto.setByCwe(byCwe);
+
+    List<AuditSummaryDto> recentAudits = stats.recentAudits().stream()
+        .map(item -> {
+          AuditSummaryDto dto = new AuditSummaryDto();
+          dto.setScanId(item.scanId());
+          dto.setDate(OffsetDateTime.of(item.date(), ZoneOffset.UTC));
+          dto.setRepositoryUrl(item.repositoryUrl());
+          dto.setBranchName(item.branchName());
+          dto.setTotalVulnerabilities(item.totalVulnerabilities());
+          return dto;
+        })
+        .collect(Collectors.toList());
+    responseDto.setRecentAudits(recentAudits);
 
     log.info("EXITO - Estadisticas analiticas consultadas correctamente");
     return ResponseEntity.ok(responseDto);
