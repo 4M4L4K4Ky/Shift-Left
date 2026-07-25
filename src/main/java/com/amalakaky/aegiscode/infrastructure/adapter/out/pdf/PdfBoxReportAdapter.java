@@ -20,6 +20,7 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.apache.pdfbox.pdmodel.interactive.action.PDActionURI;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationLink;
+import org.apache.pdfbox.pdmodel.interactive.annotation.PDBorderStyleDictionary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -416,8 +417,8 @@ public class PdfBoxReportAdapter implements ReportGeneratorPort {
     drawLine(cs, MARGIN, y, PAGE_W - MARGIN, y);
     y -= 16;
 
-    float scanW = 155;
-    float dateW = 95;
+    float scanW = 180;
+    float dateW = 80;
     float repoW = PAGE_W - MARGIN * 2 - scanW - dateW - 8;
     float[] col = {MARGIN, MARGIN + scanW, MARGIN + scanW + dateW};
     float tableW = PAGE_W - MARGIN * 2;
@@ -431,6 +432,8 @@ public class PdfBoxReportAdapter implements ReportGeneratorPort {
     writeLine(cs, BOLD, 9, col[2] + 4, y - 5, "Repositorio");
     y -= 22;
 
+    PDBorderStyleDictionary noBorder = new PDBorderStyleDictionary();
+    noBorder.setWidth(0);
     List<AuditLink> links = new ArrayList<>();
 
     for (AuditDetail a : data.recentAudits()) {
@@ -438,16 +441,16 @@ public class PdfBoxReportAdapter implements ReportGeneratorPort {
         continue;
       }
       writeTruncated(cs, REG, 8, col[0] + 4, y - 4, scanW - 5, a.scanId());
-      writeLine(cs, REG, 8, col[1] + 4, y - 4, a.date().format(DATE_FMT));
+      writeLine(cs, REG, 7, col[1] + 4, y - 4, a.date().format(DATE_FMT));
 
       String repo = a.repositoryUrl() != null ? a.repositoryUrl() : "N/A";
-      if (!"N/A".equals(repo)) {
+      if (repo.startsWith("http://") || repo.startsWith("https://")) {
         cs.setNonStrokingColor(0, 0, 0.6f);
-        writeTruncated(cs, REG, 8, col[2] + 4, y - 4, repoW - 5, repo);
+        writeTruncated(cs, REG, 7, col[2] + 4, y - 4, repoW - 5, repo);
         cs.setNonStrokingColor(0, 0, 0);
         links.add(new AuditLink(repo, col[2] + 4, y - 17, repoW - 5, 15));
       } else {
-        writeTruncated(cs, REG, 8, col[2] + 4, y - 4, repoW - 5, "N/A");
+        writeTruncated(cs, REG, 7, col[2] + 4, y - 4, repoW - 5, repo);
       }
       y -= 16;
     }
@@ -465,6 +468,7 @@ public class PdfBoxReportAdapter implements ReportGeneratorPort {
       rect.setUpperRightX(al.x + al.w);
       rect.setUpperRightY(al.y + al.h);
       link.setRectangle(rect);
+      link.setBorderStyle(noBorder);
       page.getAnnotations().add(link);
     }
   }

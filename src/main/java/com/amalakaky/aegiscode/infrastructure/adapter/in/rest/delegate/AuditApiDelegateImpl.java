@@ -33,18 +33,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 /**
- * Implementación del delegado REST generado por OpenAPI.
+ * Implementacion del delegado REST generado por OpenAPI.
  * 
  * Traduce las peticiones HTTP a llamadas a los puertos de entrada (casos de uso),
- * manteniendo la lógica de presentación fuera del dominio. Sigue el patrón
- * Delegate Pattern para separar el código generado del código manual.
+ * manteniendo la logica de presentacion fuera del dominio.
  * 
  * Endpoints:
  * 
- *   {@code POST /api/scans} — audita código inline
- *   {@code POST /api/v1/audit/github} — audita repositorio GitHub
- *   {@code GET /api/v1/audits/stats} — estadísticas de severidad
- * 
+ *   POST /api/v1/audits/inline     — audita codigo inline
+ *   POST /api/v1/audits/repository  — audita repositorio Git
+ *   GET  /api/v1/audits/statistics  — estadisticas de severidad
+ *   GET  /api/v1/audits/report      — informe PDF global
  */
 @Slf4j
 @Component
@@ -66,7 +65,7 @@ public class AuditApiDelegateImpl implements AuditEngineApiDelegate {
   }
 
   @Override
-  public ResponseEntity<AuditReportDto> scansPost(ScanRequestDto scanRequestDto) {
+  public ResponseEntity<AuditReportDto> auditsInlinePost(ScanRequestDto scanRequestDto) {
     String scanId = UUID.randomUUID().toString();
     int codeLength = scanRequestDto.getSourceCode() != null
         ? scanRequestDto.getSourceCode().length() : 0;
@@ -92,7 +91,7 @@ public class AuditApiDelegateImpl implements AuditEngineApiDelegate {
   }
 
   @Override
-  public ResponseEntity auditGithubPost(GitHubScanRequestDto gitHubScanRequestDto) {
+  public ResponseEntity<AuditReportDto> auditsRepositoryPost(GitHubScanRequestDto gitHubScanRequestDto) {
     String scanId = UUID.randomUUID().toString();
     String repositoryUrl = gitHubScanRequestDto.getRepositoryUrl();
     String branch = gitHubScanRequestDto.getBranch();
@@ -137,25 +136,8 @@ public class AuditApiDelegateImpl implements AuditEngineApiDelegate {
     }
   }
 
-  // Y para garantizar que sourceFiles no venga vacío, en tu JgitAdapter,
-
-  private List extractJavaFiles(File directory) {
-    try (java.util.stream.Stream<java.nio.file.Path> paths =
-        java.nio.file.Files.walk(directory.toPath())) {
-      return paths
-          .filter(java.nio.file.Files::isRegularFile)
-          .filter(path -> path.toString().endsWith(".java"))
-          .map(java.nio.file.Path::toFile)
-          .toList();
-    } catch (java.io.IOException e) {
-      log.error("Fallo de I/O al recorrer el repositorio: {}", e.getMessage());
-      throw new IllegalStateException("Error al extraer archivos Java", e);
-    }
-  }
-
-
   @Override
-  public ResponseEntity<AuditStatisticsResponseDto> auditsStatsGet() {
+  public ResponseEntity<AuditStatisticsResponseDto> auditsStatisticsGet() {
     log.info("INICIO - Consultando estadisticas globales de severidad de vulnerabilidades");
 
     DashboardStats stats = getAuditStatisticsUseCase.getDashboardStats();

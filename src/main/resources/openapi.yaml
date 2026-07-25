@@ -10,11 +10,11 @@ servers:
     description: Entorno de Desarrollo Local
 
 paths:
-  /api/scans:
+  /api/v1/audits/inline:
     post:
-      operationId: scansPost
-      summary: Ejecuta un escaneo estático de código fuente
-      description: Inicia el pipeline multi-agente (Scanner, Auditor y Remediation Agents) para auditar bloques de código fuente e inyectar parches limpios.
+      operationId: auditsInlinePost
+      summary: Audita codigo fuente inline
+      description: Ejecuta el pipeline multi-agente (Scanner, Auditor y Remediation Agents) para auditar un bloque de codigo fuente y generar parches correctivos.
       tags:
         - Audit Engine
       requestBody:
@@ -25,35 +25,27 @@ paths:
               $ref: '#/components/schemas/ScanRequest'
       responses:
         '202':
-          description: Escaneo aceptado y en curso. Devuelve el estado inicial del agregado raíz.
+          description: Escaneo aceptado y en curso.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuditReport'
         '429':
-          description: Límite de peticiones alcanzado (Protección DevSecOps con Bucket4j).
+          description: Limite de peticiones alcanzado.
           content:
             text/plain:
               schema:
                 type: string
                 example: Rate limit exceeded. Try again later.
 
-  /api/v1/audit/github:
+  /api/v1/audits/repository:
     post:
-      operationId: auditGithubPost
-      summary: Audita un repositorio de GitHub completo
+      operationId: auditsRepositoryPost
+      summary: Audita un repositorio Git completo
       description: >
-        <p>Clona de forma temporal y superficial (depth=1) un repositorio público de GitHub,
-        extrae los ficheros fuente Java y ejecuta el pipeline multi-agente completo:</p>
-
-        <ol>
-          <li><strong>Repository Scanner Agent</strong> — Descompone y analiza el código fuente extraído.</li>
-          <li><strong>Auditor Agent</strong> — Detecta vulnerabilidades OWASP Top 10 con análisis contextual.</li>
-          <li><strong>Remediation Agent</strong> — Genera parches seguros específicos para cada CWE detectado.</li>
-        </ol>
-
-        <p>El resultado incluye el listado de vulnerabilidades con su clasificación CWE, severidad,
-        descripción técnica y el código corregido propuesto.</p>
+        Clona superficialmente (depth=1) un repositorio publico de GitHub,
+        extrae los archivos Java y ejecuta el pipeline multi-agente completo
+        para detectar vulnerabilidades y generar parches seguros.
       tags:
         - Audit Engine
       requestBody:
@@ -67,9 +59,7 @@ paths:
               branch: "main"
       responses:
         '200':
-          description: >
-            <p>Auditoría completada con éxito. El repositorio se clonó, se analizaron los archivos
-            fuente y los resultados se persistieron en la base de datos (Supabase/Oracle).</p>
+          description: Auditoria completada exitosamente.
           content:
             application/json:
               schema:
@@ -88,16 +78,10 @@ paths:
                   - cweId: "CWE-79"
                     severity:
                       value: 7
-                    description: "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') en parámetros de respuesta HTTP."
+                    description: "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') en parametros de respuesta HTTP."
                     remediationPatch: "import org.owasp.encoder.Encode; response.getWriter().write(Encode.forHtml(userInput));"
         '400':
-          description: >
-            <p>Parámetros inválidos o URL bloqueada por políticas de seguridad.</p>
-            <ul>
-              <li>La URL debe cumplir el patrón <code>^https://github\.com/[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+\.git$</code></li>
-              <li>El branch solo admite caracteres alfanuméricos, guiones y puntos.</li>
-              <li>URLs que no apunten a github.com son rechazadas (prevención SSRF).</li>
-            </ul>
+          description: Parametros invalidos o URL bloqueada.
           content:
             application/json:
               schema:
@@ -107,13 +91,7 @@ paths:
                     type: string
                     example: "Invalid repository URL. Only public GitHub repositories are allowed."
         '500':
-          description: >
-            <p>Fallo crítico en infraestructura.</p>
-            <ul>
-              <li>Error de clonado con JGit (repositorio inexistente, privado o red caída).</li>
-              <li>Saturación en Groq LPU (Cloudflare rate limit o timeout del modelo).</li>
-              <li>Falla en la deserialización JSON de la respuesta del LLM.</li>
-            </ul>
+          description: Error interno en la infraestructura de clonado o analisis.
           content:
             application/json:
               schema:
@@ -123,21 +101,22 @@ paths:
                     type: string
                     example: "Failed to clone repository: https://github.com/4M4L4K4Ky/vulnerable-bank-api.git"
 
-  /api/v1/audits/stats:
+  /api/v1/audits/statistics:
     get:
+      operationId: auditsStatisticsGet
+      summary: Obtiene estadisticas globales de vulnerabilidades
+      description: Retorna metricas agregadas incluyendo distribucion por severidad, top CWEs y auditorias recientes.
       tags:
         - Audit Engine
-      summary: Consulta estadísticas globales de vulnerabilidades agrupadas por severidad
-      operationId: auditsStatsGet
       responses:
         '200':
-          description: Estadísticas recuperadas con éxito
+          description: Estadisticas recuperadas exitosamente.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuditStatisticsResponse'
         '500':
-          description: Error interno del servidor
+          description: Error interno del servidor.
 
   /api/v1/audits/report:
     get:
@@ -176,10 +155,7 @@ components:
 
     GitHubScanRequest:
       type: object
-      description: >
-        <p>Petición para auditar un repositorio público de GitHub.
-        El sistema clona el repositorio (shallow clone, depth=1), extrae todos los archivos
-        <code>.java</code> y ejecuta el pipeline multi-agente de análisis estático.</p>
+      description: Peticion para auditar un repositorio publico de GitHub. Clona el repositorio (shallow clone, depth=1), extrae todos los archivos .java y ejecuta el pipeline multi-agente.
       required:
         - repositoryUrl
         - branch
@@ -187,19 +163,14 @@ components:
         repositoryUrl:
           type: string
           pattern: '^https:\/\/github\.com\/[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+\.git$'
-          description: >
-            <p>URL HTTPS completa del repositorio público de GitHub.
-            Debe terminar en <code>.git</code>. Solo repositorios públicos en github.com son aceptados
-            (política de seguridad para prevención de SSRF).</p>
+          description: URL HTTPS completa del repositorio publico de GitHub. Debe terminar en .git. Solo repositorios publicos en github.com son aceptados (prevencion SSRF).
           example: "https://github.com/4M4L4K4Ky/vulnerable-bank-api.git"
         branch:
           type: string
           pattern: '^[a-zA-Z0-9_.-]+$'
           minLength: 1
           maxLength: 255
-          description: >
-            <p>Rama del repositorio a auditar. Se recomienda usar <code>main</code> o <code>master</code>.
-            Caracteres permitidos: alfanuméricos, guiones bajos, guiones medios y puntos.</p>
+          description: "Rama del repositorio a auditar. Se recomienda main o master. Caracteres permitidos: alfanumericos, guiones bajos, guiones medios y puntos."
           example: "main"
 
     AuditReport:
