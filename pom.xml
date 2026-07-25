@@ -153,6 +153,15 @@
         </dependency>
 
         <!-- ========================================== -->
+        <!-- GENERACIÓN DE INFORMES (PDF)              -->
+        <!-- ========================================== -->
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+
+        <!-- ========================================== -->
         <!-- TESTING Y ARQUITECTURA (ArchUnit)          -->
         <!-- ========================================== -->
         <dependency>

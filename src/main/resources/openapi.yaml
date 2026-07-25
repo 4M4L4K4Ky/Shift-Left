@@ -139,38 +139,24 @@ paths:
         '500':
           description: Error interno del servidor
 
-  /api/v1/audits/{scanId}/report:
+  /api/v1/audits/report:
     get:
       tags:
-        - Audit Report
-      summary: Descarga un informe PDF de la auditoría
+        - Audit Engine
+      summary: Descarga el informe PDF global de la plataforma
+      description: >
+        Genera un documento PDF completo con las estadísticas globales de
+        todas las auditorías realizadas: resumen ejecutivo, distribución por
+        severidad, top CWEs y listado de las auditorías más recientes.
       operationId: getAuditReport
-      parameters:
-        - name: scanId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: Identificador único del escaneo.
       responses:
         '200':
-          description: Informe PDF generado correctamente
+          description: Informe PDF global generado correctamente
           content:
             application/pdf:
               schema:
                 type: string
                 format: binary
-        '404':
-          description: No se encontró una auditoría con ese scanId
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "Audit not found: f47ac10b-58cc-4372-a567-0e02b2c3d479"
         '500':
           description: Error interno al generar el informe
 

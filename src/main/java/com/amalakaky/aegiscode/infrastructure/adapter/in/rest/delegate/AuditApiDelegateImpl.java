@@ -1,6 +1,7 @@
 package com.amalakaky.aegiscode.infrastructure.adapter.in.rest.delegate;
 
 import com.amalakaky.aegiscode.application.port.in.AnalyzeCodeUseCase;
+import com.amalakaky.aegiscode.application.port.in.GetAuditReportUseCase;
 import com.amalakaky.aegiscode.application.port.in.GetAuditStatisticsUseCase;
 import com.amalakaky.aegiscode.application.port.out.vcs.GitProviderPort;
 import com.amalakaky.aegiscode.domain.model.AuditReport;
@@ -24,6 +25,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -48,13 +53,16 @@ public class AuditApiDelegateImpl implements AuditEngineApiDelegate {
   private final AnalyzeCodeUseCase analyzeCodeUseCase;
   private final GitProviderPort gitProviderPort;
   private final GetAuditStatisticsUseCase getAuditStatisticsUseCase;
+  private final GetAuditReportUseCase getAuditReportUseCase;
 
   public AuditApiDelegateImpl(AnalyzeCodeUseCase analyzeCodeUseCase,
       GitProviderPort gitProviderPort,
-      GetAuditStatisticsUseCase getAuditStatisticsUseCase) {
+      GetAuditStatisticsUseCase getAuditStatisticsUseCase,
+      GetAuditReportUseCase getAuditReportUseCase) {
     this.analyzeCodeUseCase = analyzeCodeUseCase;
     this.gitProviderPort = gitProviderPort;
     this.getAuditStatisticsUseCase = getAuditStatisticsUseCase;
+    this.getAuditReportUseCase = getAuditReportUseCase;
   }
 
   @Override
@@ -187,6 +195,33 @@ public class AuditApiDelegateImpl implements AuditEngineApiDelegate {
 
     log.info("EXITO - Estadisticas analiticas consultadas correctamente");
     return ResponseEntity.ok(responseDto);
+  }
+
+  @Override
+  public ResponseEntity<Resource> getAuditReport() {
+    log.info("INICIO - Generando informe PDF global");
+    long startTime = System.currentTimeMillis();
+
+    try {
+      byte[] pdfBytes = getAuditReportUseCase.getGlobalReport();
+      long duration = System.currentTimeMillis() - startTime;
+      log.info("EXITO - Informe PDF generado en {} ms ({} bytes)", duration, pdfBytes.length);
+
+      ByteArrayResource resource = new ByteArrayResource(pdfBytes);
+
+      return ResponseEntity.ok()
+          .contentType(MediaType.APPLICATION_PDF)
+          .contentLength(pdfBytes.length)
+          .header(HttpHeaders.CONTENT_DISPOSITION,
+              "attachment; filename=\"informe-global.pdf\"")
+          .body(resource);
+
+    } catch (Exception e) {
+      long duration = System.currentTimeMillis() - startTime;
+      log.error("ERROR CRITICO - Fallo al generar informe PDF tras {} ms: {}",
+          duration, e.getMessage(), e);
+      throw e;
+    }
   }
 
   /** Convierte un {@link AuditReport} del dominio al DTO de respuesta. */
