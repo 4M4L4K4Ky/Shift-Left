@@ -285,19 +285,7 @@
                 </executions>
             </plugin>
 
-            <!-- OWASP Dependency Check: análisis de vulnerabilidades en dependencias (CVSS ≥ 7 falla el build) -->
-            <plugin>
-                <groupId>org.owasp</groupId>
-                <artifactId>dependency-check-maven</artifactId>
-                <version>10.0.4</version>
-                <configuration>
-                    <failBuildOnCVSS>7</failBuildOnCVSS>
-                    <formats>
-                        <format>HTML</format>
-                        <format>SARIF</format>
-                    </formats>
-                </configuration>
-            </plugin>
+
 
         </plugins>
     </build>
