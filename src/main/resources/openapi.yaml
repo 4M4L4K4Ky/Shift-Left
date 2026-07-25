@@ -151,7 +151,7 @@ components:
           minLength: 1
           maxLength: 50000
           description: Fragmento o clase de código fuente a auditar.
-          example: "public void query(String id) { String sql = \"SELECT * FROM users WHERE id = \" + id; }"
+          example: "String query = \"SELECT * FROM users WHERE username = '\" + userInput + \"'\"; statement.executeQuery(query);"
 
     GitHubScanRequest:
       type: object
