@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 /**
  * Proyección de Spring Data JPA para el resumen de auditorías recientes.
- * <p>
+ * 
  * Los nombres de los getters deben coincidir con los alias de la consulta JPQL
  * en {@link DataAuditRepository#findRecentAudits}.
  */

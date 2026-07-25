@@ -4,7 +4,7 @@ import com.amalakaky.aegiscode.domain.model.AuditReport;
 
 /**
  * Puerto de salida para la persistencia de auditorías.
- * <p>
+ * 
  * Define el contrato para guardar y recuperar reportes de auditoría
  * desde el sistema de almacenamiento (Oracle ATP en producción, H2 en local).
  */

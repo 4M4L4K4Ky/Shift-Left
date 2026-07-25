@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Adaptador que implementa {@link ReportGeneratorPort} usando Apache PDFBox 3.x.
- * <p>
+ * 
  * Genera un documento PDF estructurado con el informe global de la plataforma:
  * portada, resumen ejecutivo, top CWEs y detalle de auditorías recientes.
  */

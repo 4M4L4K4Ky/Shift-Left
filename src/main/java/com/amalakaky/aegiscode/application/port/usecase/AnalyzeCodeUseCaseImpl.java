@@ -14,12 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Caso de uso principal que orquesta los pipelines de auditoría de código.
- * <p>
+ * 
  * Implementa dos flujos:
- * <ul>
- *   <li><b>Scan inline</b> (POST /api/scans): agente Auditor → agente Remediación</li>
- *   <li><b>Scan repositorio</b> (POST /api/v1/audit/github): agente Scanner → todas las vulnerabilidades</li>
- * </ul>
+ * 
+ *   Scan inline (POST /api/scans): agente Auditor → agente Remediación
+ *   Scan repositorio (POST /api/v1/audit/github): agente Scanner → todas las vulnerabilidades
+ * 
  * Actúa como orquestador entre los puertos de salida (IA y persistencia).
  */
 @Service

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Repository;
  * Adaptador de infraestructura que implementa {@link AuditStatisticsRepositoryPort}
  * consultando la vista de base de datos {@code view_vulnerability_severity_stats}
  * y el repositorio {@link DataAuditRepository} para estadísticas agregadas.
- * <p>
+ * 
  * La entidad {@link VulnerabilitySeverityStatsEntity} está mapeada como
  * {@link org.hibernate.annotations.Immutable} porque proviene de una vista
  * de solo lectura.
@@ -34,7 +34,7 @@ public class AuditStatisticsAdapter implements AuditStatisticsRepositoryPort {
   }
 
   @Override
-  public Map<Integer, Long> getVulnerabilitiesBySeverity() {
+  public Map getVulnerabilitiesBySeverity() {
     return statsRepository.findAll().stream()
         .collect(Collectors.toMap(
             VulnerabilitySeverityStatsEntity::getSeverity,

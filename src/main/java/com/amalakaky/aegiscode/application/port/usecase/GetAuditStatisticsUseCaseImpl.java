@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * Caso de uso para consultar estadísticas agregadas de vulnerabilidades.
- * <p>
+ * 
  * Delega en el puerto de salida {@link AuditStatisticsRepositoryPort}
  * para poblar todas las secciones del dashboard.
  */
@@ -20,11 +20,6 @@ public class GetAuditStatisticsUseCaseImpl implements GetAuditStatisticsUseCase 
 
   public GetAuditStatisticsUseCaseImpl(AuditStatisticsRepositoryPort statisticsRepositoryPort) {
     this.statisticsRepositoryPort = statisticsRepositoryPort;
-  }
-
-  @Override
-  public Map<Integer, Long> getSeverityStatistics() {
-    return statisticsRepositoryPort.getVulnerabilitiesBySeverity();
   }
 
   @Override

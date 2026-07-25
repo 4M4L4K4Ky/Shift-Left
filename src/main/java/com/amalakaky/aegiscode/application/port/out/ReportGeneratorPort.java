@@ -4,7 +4,7 @@ import com.amalakaky.aegiscode.application.port.in.GetAuditReportUseCase.GlobalR
 
 /**
  * Puerto de salida para la generación de informes PDF.
- * <p>
+ * 
  * Define el contrato para transformar los datos globales de la plataforma
  * ({@link GlobalReportData}) en un documento PDF listo para descargar.
  */

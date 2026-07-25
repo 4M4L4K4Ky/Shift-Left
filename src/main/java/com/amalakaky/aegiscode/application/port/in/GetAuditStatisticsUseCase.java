@@ -7,27 +7,14 @@ import java.util.Map;
 
 /**
  * Puerto de entrada para consultar estadísticas de auditoría.
- * <p>
+ * 
  * Proporciona métricas agregadas sobre las vulnerabilidades almacenadas,
  * incluyendo distribución por severidad, top CWEs y auditorías recientes.
  */
 public interface GetAuditStatisticsUseCase {
 
-  /**
-   * Retorna un mapa con el recuento de vulnerabilidades agrupadas por severidad.
-   *
-   * @return mapa severidad → total de vulnerabilidades (ej. {9: 5, 3: 12})
-   */
-  Map<Integer, Long> getSeverityStatistics();
-
-  /**
-   * Estadísticas completas del dashboard.
-   *
-   * @return DTO con todos los indicadores agregados
-   */
   DashboardStats getDashboardStats();
 
-  /** DTO con el conjunto completo de estadísticas del dashboard. */
   record DashboardStats(
       long totalAudits,
       long totalVulnerabilities,

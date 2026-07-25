@@ -5,7 +5,7 @@ import java.util.Optional;
 
 /**
  * Puerto de salida para el agente auditor de IA.
- * <p>
+ * 
  * Analiza código fuente en busca de vulnerabilidades de seguridad.
  * La implementación concreta utiliza Groq (LLaMA 3.3 70B) vía Spring AI.
  */

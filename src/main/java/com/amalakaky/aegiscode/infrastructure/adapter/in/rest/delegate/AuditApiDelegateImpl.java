@@ -34,17 +34,17 @@ import org.springframework.stereotype.Component;
 
 /**
  * Implementación del delegado REST generado por OpenAPI.
- * <p>
+ * 
  * Traduce las peticiones HTTP a llamadas a los puertos de entrada (casos de uso),
  * manteniendo la lógica de presentación fuera del dominio. Sigue el patrón
- * <b>Delegate Pattern</b> para separar el código generado del código manual.
- * <p>
+ * Delegate Pattern para separar el código generado del código manual.
+ * 
  * Endpoints:
- * <ul>
- *   <li>{@code POST /api/scans} — audita código inline</li>
- *   <li>{@code POST /api/v1/audit/github} — audita repositorio GitHub</li>
- *   <li>{@code GET /api/v1/audits/stats} — estadísticas de severidad</li>
- * </ul>
+ * 
+ *   {@code POST /api/scans} — audita código inline
+ *   {@code POST /api/v1/audit/github} — audita repositorio GitHub
+ *   {@code GET /api/v1/audits/stats} — estadísticas de severidad
+ * 
  */
 @Slf4j
 @Component

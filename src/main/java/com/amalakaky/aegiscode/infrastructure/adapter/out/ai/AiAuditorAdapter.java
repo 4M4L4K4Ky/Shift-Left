@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 /**
  * Adaptador de infraestructura que implementa {@link AuditorAgentPort} usando
  * Spring AI con Groq (LLaMA 3.3 70B).
- * <p>
+ * 
  * Envía el código fuente al modelo con un prompt de "Auditor Agent" y mapea
  * la respuesta JSON estructurada a una entidad {@link Vulnerability} del dominio.
  * Detecta una única vulnerabilidad por invocación (la principal).

@@ -9,11 +9,11 @@ import lombok.Data;
 
 /**
  * Agregado raíz del dominio que representa una auditoría de seguridad.
- * <p>
+ * 
  * Orquesta el ciclo de vida de un análisis: desde {@link AuditStatus#IN_PROGRESS} hasta
  * {@link AuditStatus#COMPLETED} o {@link AuditStatus#FAILED}. Contiene la lista de
  * vulnerabilidades detectadas y el contexto del repositorio escaneado.
- * <p>
+ * 
  * Esta clase es pura del dominio (sin dependencias de frameworks) siguiendo
  * los principios de Domain-Driven Design.
  */

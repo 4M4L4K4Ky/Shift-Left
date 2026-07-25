@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Size;
 
 /**
  * DTO de entrada para el endpoint {@code POST /api/scans}.
- * <p>
+ * 
  * Contiene el código fuente a auditar con validaciones de tamaño máximo (50KB).
  */
 public record SourceCodeRequest(

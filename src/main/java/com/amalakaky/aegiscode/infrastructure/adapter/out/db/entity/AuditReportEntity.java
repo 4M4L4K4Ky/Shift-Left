@@ -22,7 +22,7 @@ import lombok.Setter;
 
 /**
  * Entidad JPA que mapea la tabla {@code audit_reports}.
- * <p>
+ * 
  * Contiene el resultado de una auditoría: estado, metadatos del repositorio
  * y la colección de vulnerabilidades detectadas (relación OneToMany).
  * Se utiliza exclusivamente en la capa de infraestructura; el dominio trabaja

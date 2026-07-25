@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 /**
  * Repositorio JPA para la entidad {@link AuditReportEntity}.
- * <p>
+ * 
  * Proporciona operaciones CRUD básicas sobre la tabla {@code audit_reports}
  * heredadas de {@link JpaRepository}, además de consultas agregadas para
  * estadísticas de vulnerabilidades.

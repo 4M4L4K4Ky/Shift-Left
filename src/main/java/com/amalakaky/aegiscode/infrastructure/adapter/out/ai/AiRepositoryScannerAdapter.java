@@ -18,9 +18,9 @@ import org.springframework.stereotype.Component;
 /**
  * Adaptador de infraestructura que implementa {@link RepositoryScannerPort}
  * usando Groq (LLaMA 3.3 70B) vía Spring AI {@link ChatModel}.
- * <p>
+ * 
  * A diferencia de {@link AiAuditorAdapter}, este adaptador escanea el código
- * completo de un repositorio y detecta <b>todas</b> las vulnerabilidades OWASP
+ * completo de un repositorio y detecta todas las vulnerabilidades OWASP
  * Top 10 en una sola invocación. Procesa la respuesta JSON del LLM limpiando
  * posibles artefactos markdown antes de deserializar.
  */

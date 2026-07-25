@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * DTO de respuesta para los resultados de una auditoría.
- * <p>
+ * 
  * Proyecta los datos del {@link AuditReport} del dominio hacia la capa REST,
  * excluyendo detalles internos como metadatos de repositorio.
  */

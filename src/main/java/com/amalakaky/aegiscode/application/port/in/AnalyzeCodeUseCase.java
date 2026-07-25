@@ -4,7 +4,7 @@ import com.amalakaky.aegiscode.domain.model.AuditReport;
 
 /**
  * Puerto de entrada (inbound port) para análisis de código fuente.
- * <p>
+ * 
  * Define los casos de uso de escaneo de seguridad: análisis de código inline
  * y análisis de repositorios completos. Implementado por {@code AnalyzeCodeUseCaseImpl}.
  */

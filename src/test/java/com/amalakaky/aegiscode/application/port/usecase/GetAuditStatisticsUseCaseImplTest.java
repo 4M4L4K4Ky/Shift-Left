@@ -78,13 +78,4 @@ class GetAuditStatisticsUseCaseImplTest {
     assertThat(result.recentAudits()).isEmpty();
   }
 
-  @Test
-  void getSeverityStatistics_shouldDelegateToPort() {
-    when(port.getVulnerabilitiesBySeverity()).thenReturn(Map.of(9, 5L));
-
-    var result = useCase.getSeverityStatistics();
-
-    assertThat(result).containsEntry(9, 5L);
-    verify(port).getVulnerabilitiesBySeverity();
-  }
 }

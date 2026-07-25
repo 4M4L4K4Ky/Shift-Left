@@ -17,21 +17,21 @@ import org.springframework.stereotype.Component;
 /**
  * Adaptador de infraestructura que implementa {@link GitProviderPort} usando
  * Eclipse JGit para clonar repositorios GitHub.
- * <p>
+ * 
  * Realiza un clon superficial (shallow clone, depth=1) para minimizar el tiempo
  * de descarga y el espacio en disco. La autenticación se realiza mediante
  * GitHub Personal Access Token configurado en {@code app.vcs.github.token}.
- * <p>
- * <b>Pendiente:</b> la limpieza del directorio temporal no está implementada
+ * 
+ * Pendiente: la limpieza del directorio temporal no está implementada
  * en el bloque {@code finally}.
  */
 @Slf4j
 @Component
-public class JgitAdapter implements GitProviderPort {
+public class JGitAdapter implements GitProviderPort {
 
   private final String githubToken;
 
-  public JgitAdapter(@Value("${app.vcs.github.token}") String githubToken) {
+  public JGitAdapter(@Value("${app.vcs.github.token}") String githubToken) {
     this.githubToken = githubToken;
   }
 

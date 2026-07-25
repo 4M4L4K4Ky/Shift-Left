@@ -6,7 +6,7 @@ import java.util.Map;
 
 /**
  * Puerto de salida para estadísticas de vulnerabilidades.
- * <p>
+ * 
  * Proporciona datos agregados desde la vista de base de datos
  * {@code view_vulnerability_severity_stats} y consultas analíticas
  * adicionales sobre auditorías y vulnerabilidades.
@@ -18,7 +18,7 @@ public interface AuditStatisticsRepositoryPort {
    *
    * @return mapa con severidad como clave y total como valor
    */
-  Map<Integer, Long> getVulnerabilitiesBySeverity();
+  Map getVulnerabilitiesBySeverity();
 
   /**
    * Total de auditorías realizadas en la plataforma.

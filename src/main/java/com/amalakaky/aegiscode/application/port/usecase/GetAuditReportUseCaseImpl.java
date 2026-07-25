@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * Caso de uso para generar el informe PDF global de la plataforma.
- * <p>
+ * 
  * Obtiene las estadísticas del dashboard desde {@link GetAuditStatisticsUseCase},
  * complementa con el detalle de vulnerabilidades de las auditorías recientes
  * desde {@link AuditStatisticsRepositoryPort}, y delega la generación del PDF

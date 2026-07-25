@@ -6,7 +6,7 @@ import java.util.Map;
 
 /**
  * Puerto de entrada para generar el informe PDF global de la plataforma.
- * <p>
+ * 
  * Recopila todas las estadísticas del dashboard junto con el detalle
  * de las auditorías recientes y sus vulnerabilidades para generar
  * un documento PDF completo.

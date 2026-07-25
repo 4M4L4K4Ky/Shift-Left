@@ -6,7 +6,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 
 /**
  * Utilidad para escribir respuestas de ejemplo en la documentación OpenAPI.
- * <p>
+ * 
  * Usada internamente por el código generado para poblar la consola de Swagger
  * con ejemplos de respuesta.
  */

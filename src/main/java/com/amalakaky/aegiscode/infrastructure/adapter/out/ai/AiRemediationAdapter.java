@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Adaptador de infraestructura que implementa {@link RemediationAgentPort}.
- * <p>
+ * 
  * Utiliza Groq (LLaMA 3.3 70B) vía Spring AI para generar código corregido
  * a partir de un fragmento vulnerable y un identificador CWE específico.
  * El prompt está diseñado para que el LLM devuelva únicamente el código limpio.

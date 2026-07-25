@@ -15,12 +15,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * Filtro de rate limiting que protege el endpoint {@code /api/scans}.
- * <p>
+ * 
  * Implementa un token bucket con {@link Bucket4j} permitiendo hasta
  * {@value #MAX_REQUESTS_PER_MINUTE} peticiones por minuto. Cuando se excede
  * el límite, retorna HTTP 429 (Too Many Requests).
- * <p>
- * <b>Nota:</b> el bucket reside en memoria y no persiste entre reinicios.
+ * 
+ * Nota: el bucket reside en memoria y no persiste entre reinicios.
  */
 @Component
 public class RateLimitFilter extends OncePerRequestFilter {

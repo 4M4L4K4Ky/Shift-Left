@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * Puerto de salida para el agente scanner de repositorios.
- * <p>
+ * 
  * Escanea todo el código fuente de un repositorio (múltiples archivos)
  * y retorna todas las vulnerabilidades detectadas en un solo análisis.
  * A diferencia de {@link AuditorAgentPort}, este puerto soporta detección
