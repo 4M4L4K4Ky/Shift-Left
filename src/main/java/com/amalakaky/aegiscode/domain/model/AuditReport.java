@@ -1,48 +1,53 @@
 package com.amalakaky.aegiscode.domain.model;
 
-import lombok.*;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 
 @Builder
 @Data
 @AllArgsConstructor
 public class AuditReport {
 
-    private final String scanId;
-    private final List<Vulnerability> vulnerabilities;
-    private AuditStatus status;
-    private String repositoryUrl;
-    private String branchName;
+  private final String scanId;
+  private final List<Vulnerability> vulnerabilities;
+  private AuditStatus status;
+  private String repositoryUrl;
+  private String branchName;
 
-    public enum AuditStatus {
-        IN_PROGRESS, COMPLETED, FAILED
-    }
+  public enum AuditStatus {
+    IN_PROGRESS, COMPLETED, FAILED
+  }
 
-    public AuditReport(String scanId) {
-        this.scanId = scanId;
-        this.vulnerabilities = new ArrayList<>();
-        this.status = AuditStatus.IN_PROGRESS;
-    }
+  public AuditReport(String scanId) {
+    this.scanId = scanId;
+    this.vulnerabilities = new ArrayList<>();
+    this.status = AuditStatus.IN_PROGRESS;
+  }
 
-    public void addVulnerability(Vulnerability vulnerability) {
-        if (vulnerability != null) {
-            this.vulnerabilities.add(vulnerability);
-        }
+  public void addVulnerability(Vulnerability vulnerability) {
+    if (vulnerability != null) {
+      this.vulnerabilities.add(vulnerability);
     }
+  }
 
-    public void markAsCompleted() {
-        this.status = AuditStatus.COMPLETED;
-    }
+  public void markAsCompleted() {
+    this.status = AuditStatus.COMPLETED;
+  }
 
-    public void markAsFailed() {
-        this.status = AuditStatus.FAILED;
-    }
+  public void markAsFailed() {
+    this.status = AuditStatus.FAILED;
+  }
 
-    // Sin @Override. Protege la colección interna frente a modificaciones externas no controladas.
-    public List<Vulnerability> getVulnerabilities() {
-        return Collections.unmodifiableList(this.vulnerabilities);
-    }
+  // Sin @Override. Protege la colección interna frente a modificaciones externas no controladas.
+  public List<Vulnerability> getVulnerabilities() {
+    return Collections.unmodifiableList(this.vulnerabilities);
+  }
 }
+
+
+
+

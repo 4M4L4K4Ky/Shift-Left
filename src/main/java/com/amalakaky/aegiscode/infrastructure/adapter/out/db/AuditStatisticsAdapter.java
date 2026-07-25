@@ -18,8 +18,6 @@ public class AuditStatisticsAdapter implements AuditStatisticsRepositoryPort {
 
   @Override
   public Map<Integer, Long> getVulnerabilitiesBySeverity() {
-    // Cero queries en código: la base de datos ya hizo la agregación mediante la Vista SQL.
-    // Transformamos la entidad de solo lectura a un mapa de dominio.
     return statsRepository.findAll().stream()
         .collect(Collectors.toMap(
             VulnerabilitySeverityStatsEntity::getSeverity,
@@ -27,7 +25,3 @@ public class AuditStatisticsAdapter implements AuditStatisticsRepositoryPort {
         ));
   }
 }
-
-
-
-

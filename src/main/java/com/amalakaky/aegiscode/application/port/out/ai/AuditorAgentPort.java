@@ -4,5 +4,8 @@ import com.amalakaky.aegiscode.domain.model.Vulnerability;
 import java.util.Optional;
 
 public interface AuditorAgentPort {
-    Optional<Vulnerability> analyze(String sourceCode);
+  Optional<Vulnerability> analyze(String sourceCode);
 }
+
+
+
