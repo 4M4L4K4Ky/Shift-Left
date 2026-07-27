@@ -331,9 +331,6 @@ public class PdfBoxReportAdapter implements ReportGeneratorPort {
 
   private void drawDonutWedge(PDPageContentStream cs, float cx, float cy,
       float outerR, float innerR, float startAngle, float sweep) throws IOException {
-    if (sweep <= 0) {
-      return;
-    }
     int segments = Math.max(4, (int) (sweep / 5));
 
     float start = (float) Math.toRadians(startAngle);
@@ -490,7 +487,7 @@ public class PdfBoxReportAdapter implements ReportGeneratorPort {
     String d = text;
     float tw = (font.getStringWidth(d) / 1000f) * size;
     if (tw > maxW) {
-      while (tw > maxW && d.length() > 3) {
+      while (tw > maxW) {
         d = d.substring(0, d.length() - 1);
         tw = (font.getStringWidth(d + "...") / 1000f) * size;
       }

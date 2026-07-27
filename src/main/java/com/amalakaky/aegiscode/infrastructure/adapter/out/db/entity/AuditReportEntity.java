@@ -80,12 +80,10 @@ public class AuditReportEntity {
         .branchName(report.getBranchName())
         .build();
 
-    if (report.getVulnerabilities() != null) {
-      List<VulnerabilityEntity> vulnEntities = report.getVulnerabilities().stream()
-          .map(v -> VulnerabilityEntity.fromDomain(v, entity))
-          .collect(Collectors.toList());
-      entity.setVulnerabilities(vulnEntities);
-    }
+    List<VulnerabilityEntity> vulnEntities = report.getVulnerabilities().stream()
+        .map(v -> VulnerabilityEntity.fromDomain(v, entity))
+        .collect(Collectors.toList());
+    entity.setVulnerabilities(vulnEntities);
 
     return entity;
   }

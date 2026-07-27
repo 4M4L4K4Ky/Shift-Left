@@ -211,8 +211,7 @@ public class AuditApiDelegateImpl implements AuditEngineApiDelegate {
       dto.status(AuditReportDto.StatusEnum.valueOf(domain.getStatus().name()));
     }
 
-    if (domain.getVulnerabilities() != null) {
-      List<VulnerabilityDto> vulnDtos = domain.getVulnerabilities().stream()
+    List<VulnerabilityDto> vulnDtos = domain.getVulnerabilities().stream()
           .map(v -> {
             VulnerabilityDto vulnDto = new VulnerabilityDto();
             vulnDto.cweId(v.getCweId());
@@ -229,8 +228,7 @@ public class AuditApiDelegateImpl implements AuditEngineApiDelegate {
           })
           .toList();
 
-      dto.vulnerabilities(vulnDtos);
-    }
+    dto.vulnerabilities(vulnDtos);
 
     return dto;
   }

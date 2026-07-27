@@ -261,6 +261,32 @@
                 </executions>
             </plugin>
 
+            <!-- JaCoCo: cobertura de código -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.14</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>com/amalakaky/aegiscode/infrastructure/adapter/in/rest/AuditEngineApiDelegate*</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- Checkstyle: validación estática del estilo de código (Google Java Style) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -285,7 +311,16 @@
                 </executions>
             </plugin>
 
-
+            <!-- Configuración de tests con soporte para Byte Buddy en Java 25+ -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <net.bytebuddy.experimental>true</net.bytebuddy.experimental>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
 
         </plugins>
     </build>

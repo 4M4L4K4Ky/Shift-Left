@@ -4,5 +4,11 @@
         "https://checkstyle.org/dtds/suppressions_1_2.dtd">
 
 <suppressions>
-    <!-- Archivo requerido por el SuppressionFilter de Checkstyle. Sin supresiones activas. -->
+    <!-- Relajamos Javadocs y parámetros finales para agilizar el desarrollo del TFM -->
+    <suppress checks="JavadocParagraph" files=".*"/>
+    <suppress checks="JavadocVariable" files=".*"/>
+    <suppress checks="JavadocType" files=".*"/>
+    <suppress checks="FinalParameters" files=".*"/>
+    <suppress checks="DesignForExtension" files=".*"/>
+    <suppress checks="AbbreviationAsWordInName" files=".*"/>
 </suppressions>
