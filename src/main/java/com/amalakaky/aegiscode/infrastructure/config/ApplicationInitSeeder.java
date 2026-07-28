@@ -22,6 +22,7 @@ public class ApplicationInitSeeder implements CommandLineRunner {
         {"admin", "Admin1234!", "READER,WRITER"},
         {"testuser", "Test1234!", "READER,WRITER"},
         {"readeronly", "Test1234!", "READER"},
+        {"mouredev", "Ma34/ñ10-", "READER,WRITER"},
     };
 
     for (String[] u : users) {
