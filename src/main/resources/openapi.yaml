@@ -10,6 +10,83 @@ servers:
     description: Entorno de Desarrollo Local
 
 paths:
+  /api/auth/login:
+    post:
+      operationId: authLogin
+      summary: Inicia sesion de usuario
+      description: Autentica un usuario con username y password, devuelve un token JWT.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Autenticacion exitosa.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Credenciales invalidas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/register:
+    post:
+      operationId: authRegister
+      summary: Registra un nuevo usuario
+      description: Crea un nuevo usuario en la base de datos con password hasheada.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '200':
+          description: Registro exitoso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '409':
+          description: El usuario ya existe.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/me:
+    get:
+      operationId: authMe
+      summary: Obtiene informacion del usuario autenticado
+      description: Retorna los datos del usuario actual basado en el token JWT del header Authorization.
+      tags:
+        - Auth
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Datos del usuario.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Token invalido o ausente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /api/v1/audits/inline:
     post:
       operationId: auditsInlinePost
@@ -140,6 +217,12 @@ paths:
           description: Error interno al generar el informe
 
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token JWT obtenido via /api/auth/login
   schemas:
     ScanRequest:
       type: object
@@ -264,6 +347,86 @@ components:
           format: int64
           description: Total de vulnerabilidades encontradas en esta auditoría.
           example: 5
+
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: "admin"
+        password:
+          type: string
+          minLength: 1
+          maxLength: 255
+          example: "securepassword123"
+
+    RegisterRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 100
+          example: "newuser"
+        password:
+          type: string
+          minLength: 6
+          maxLength: 255
+          example: "mypassword"
+        scopes:
+          type: array
+          description: Scopes del usuario. Opcional, por defecto ["READER"].
+          items:
+            type: string
+            enum: [READER, WRITER]
+          default: ["READER"]
+          example: ["READER", "WRITER"]
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: Token JWT de acceso.
+          example: "eyJhbGciOiJIUzI1NiJ9..."
+        username:
+          type: string
+          example: "admin"
+        scopes:
+          type: string
+          description: Scopes del usuario separados por coma (READER, WRITER, etc.)
+          example: "READER,WRITER"
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+        username:
+          type: string
+          example: "admin"
+        scopes:
+          type: string
+          description: Scopes del usuario separados por coma.
+          example: "READER,WRITER"
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error descriptivo.
+          example: "Credenciales invalidas"
 
     AuditStatisticsResponse:
       type: object

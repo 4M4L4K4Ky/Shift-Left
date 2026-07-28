@@ -19,6 +19,12 @@ spring:
 
 
 app:
+  jwt:
+    secret: ${JWT_SECRET:a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6a7b8c9d0e1f2a3b4c5d6a7b8c9d0e1f}
+    expiration: 86400000
+  api:
+    client-id: aegiscode-cli
+    client-secret: cli-secret-2024
   vcs:
     github:
       token: ${TOKEN:fallback-local-token}
