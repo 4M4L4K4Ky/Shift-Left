@@ -6,16 +6,28 @@ import io.swagger.v3.oas.models.info.Info;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configuración de OpenAPI/Swagger para la documentación de la API.
+ * 
+ * Expone la especificación en {@code /v3/api-docs} y la interfaz Swagger UI
+ * en {@code /swagger-ui.html} gracias a SpringDoc.
+ */
 @Configuration
 public class OpenApiConfig {
 
-    @Bean
-    public OpenAPI aegisCodeOpenAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("AegisCode DevSecOps API")
-                        .description("Shift-Left Multi-Agent Architecture API")
-                        .version("Current")
-                        .contact(new Contact().name("AegisCode Team")));
-    }
+  /**
+   * Configura la definición de OpenAPI para la documentación de la API.
+   */
+  @Bean
+  public OpenAPI aegisCodeOpenApi() {
+    return new OpenAPI()
+        .info(new Info()
+            .title("AegisCode DevSecOps API")
+            .description("Shift-Left Multi-Agent Architecture API")
+            .version("Current")
+            .contact(new Contact().name("AegisCode Team")));
+  }
 }
+
+
+

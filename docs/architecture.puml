@@ -1,0 +1,85 @@
+@startuml
+title Arquitectura - com.amalakaky.aegiscode
+skinparam componentStyle rectangle
+
+package "com.amalakaky.aegiscode" {
+
+  component "AegiscodeApplication" as App <<SpringBoot>>
+
+  package application {
+    package port {
+      package in {
+        [AnalyzeCodeUseCase] <<interface>>
+      }
+      package out {
+        package ai {
+          [AuditorAgentPort] <<interface>>
+          [RemediationAgentPort] <<interface>>
+        }
+        package db {
+          [AuditRepositoryPort] <<interface>>
+        }
+      }
+      package usecase {
+        [AnalyzeCodeUseCaseImpl] <<service>>
+      }
+    }
+  }
+
+  package domain {
+    package model {
+      [AuditReport]
+      [Vulnerability]
+      [SeverityScore]
+    }
+  }
+
+  package infrastructure {
+    package adapter {
+      package in {
+        package rest {
+          [AuditController REST] <<controller>>
+          [SourceCodeRequest DTO]
+          [AuditReportResponse DTO]
+        }
+        package web {
+          [AuditController WEB] <<controller>>
+        }
+      }
+      package out {
+        package ai {
+          [SpringAiAuditorAdapter] <<adapter>>
+          [SpringAiRemediationAdapter] <<adapter>>
+        }
+        package db {
+          [SupabaseAuditRepositoryAdapter] <<adapter>>
+          [AuditReportEntity] <<entity>>
+          [SpringDataAuditRepository] <<repo>>
+        }
+      }
+    }
+    package config {
+      [OpenApiConfig]
+      package security {
+        [RateLimitFilter]
+      }
+    }
+  }
+
+  ' Relaciones principales
+  App --> "AnalyzeCodeUseCaseImpl" : runs
+  "AnalyzeCodeUseCaseImpl" --> "AuditorAgentPort" : uses
+  "AnalyzeCodeUseCaseImpl" --> "RemediationAgentPort" : uses
+  "AnalyzeCodeUseCaseImpl" --> "AuditRepositoryPort" : persists
+
+  "AuditController REST" --> "AnalyzeCodeUseCaseImpl" : calls
+  "SpringAiAuditorAdapter" ..|> "AuditorAgentPort"
+  "SpringAiRemediationAdapter" ..|> "RemediationAgentPort"
+  "SupabaseAuditRepositoryAdapter" ..|> "AuditRepositoryPort"
+  "SupabaseAuditRepositoryAdapter" --> "SpringDataAuditRepository"
+  "AuditReportEntity" --> "SpringDataAuditRepository"
+
+}
+
+@enduml
+

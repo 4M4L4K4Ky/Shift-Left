@@ -1,0 +1,460 @@
+openapi: 3.0.3
+info:
+  title: AegisCode DevSecOps API
+  description: Shift-Left Multi-Agent Architecture API para análisis estático, ingesta de repositorios Git y mitigación automatizada de vulnerabilidades.
+  version: 1.0.0
+  contact:
+    name: AegisCode Team
+servers:
+  - url: http://localhost:8080
+    description: Entorno de Desarrollo Local
+
+paths:
+  /api/auth/login:
+    post:
+      operationId: authLogin
+      summary: Inicia sesion de usuario
+      description: Autentica un usuario con username y password, devuelve un token JWT.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Autenticacion exitosa.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Credenciales invalidas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/register:
+    post:
+      operationId: authRegister
+      summary: Registra un nuevo usuario
+      description: Crea un nuevo usuario en la base de datos con password hasheada.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '200':
+          description: Registro exitoso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '409':
+          description: El usuario ya existe.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/me:
+    get:
+      operationId: authMe
+      summary: Obtiene informacion del usuario autenticado
+      description: Retorna los datos del usuario actual basado en el token JWT del header Authorization.
+      tags:
+        - Auth
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Datos del usuario.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Token invalido o ausente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/audits/inline:
+    post:
+      operationId: auditsInlinePost
+      summary: Audita codigo fuente inline
+      description: Ejecuta el pipeline multi-agente (Scanner, Auditor y Remediation Agents) para auditar un bloque de codigo fuente y generar parches correctivos.
+      tags:
+        - Audit Engine
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScanRequest'
+      responses:
+        '202':
+          description: Escaneo aceptado y en curso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditReport'
+        '429':
+          description: Limite de peticiones alcanzado.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Rate limit exceeded. Try again later.
+
+  /api/v1/audits/repository:
+    post:
+      operationId: auditsRepositoryPost
+      summary: Audita un repositorio Git completo
+      description: >
+        Clona superficialmente (depth=1) un repositorio publico de GitHub,
+        extrae los archivos Java y ejecuta el pipeline multi-agente completo
+        para detectar vulnerabilidades y generar parches seguros.
+      tags:
+        - Audit Engine
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GitHubScanRequest'
+            example:
+              repositoryUrl: "https://github.com/4M4L4K4Ky/vulnerable-bank-api.git"
+              branch: "main"
+      responses:
+        '200':
+          description: Auditoria completada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditReport'
+              example:
+                scanId: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                status: "COMPLETED"
+                repositoryUrl: "https://github.com/4M4L4K4Ky/vulnerable-bank-api.git"
+                branchName: "main"
+                vulnerabilities:
+                  - cweId: "CWE-89"
+                    severity:
+                      value: 9
+                    description: "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection') en PreparedStatement."
+                    remediationPatch: "public void query(String id) { String sql = \"SELECT * FROM users WHERE id = ?\"; PreparedStatement stmt = conn.prepareStatement(sql); stmt.setString(1, id); }"
+                  - cweId: "CWE-79"
+                    severity:
+                      value: 7
+                    description: "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') en parametros de respuesta HTTP."
+                    remediationPatch: "import org.owasp.encoder.Encode; response.getWriter().write(Encode.forHtml(userInput));"
+        '400':
+          description: Parametros invalidos o URL bloqueada.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid repository URL. Only public GitHub repositories are allowed."
+        '500':
+          description: Error interno en la infraestructura de clonado o analisis.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Failed to clone repository: https://github.com/4M4L4K4Ky/vulnerable-bank-api.git"
+
+  /api/v1/audits/statistics:
+    get:
+      operationId: auditsStatisticsGet
+      summary: Obtiene estadisticas globales de vulnerabilidades
+      description: Retorna metricas agregadas incluyendo distribucion por severidad, top CWEs y auditorias recientes.
+      tags:
+        - Audit Engine
+      responses:
+        '200':
+          description: Estadisticas recuperadas exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditStatisticsResponse'
+        '500':
+          description: Error interno del servidor.
+
+  /api/v1/audits/report:
+    get:
+      tags:
+        - Audit Engine
+      summary: Descarga el informe PDF global de la plataforma
+      description: >
+        Genera un documento PDF completo con las estadísticas globales de
+        todas las auditorías realizadas: resumen ejecutivo, distribución por
+        severidad, top CWEs y listado de las auditorías más recientes.
+      operationId: getAuditReport
+      responses:
+        '200':
+          description: Informe PDF global generado correctamente
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '500':
+          description: Error interno al generar el informe
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token JWT obtenido via /api/auth/login
+  schemas:
+    ScanRequest:
+      type: object
+      required:
+        - sourceCode
+      properties:
+        sourceCode:
+          type: string
+          minLength: 1
+          maxLength: 50000
+          description: Fragmento o clase de código fuente a auditar.
+          example: "String query = \"SELECT * FROM users WHERE username = '\" + userInput + \"'\"; statement.executeQuery(query);"
+
+    GitHubScanRequest:
+      type: object
+      description: Peticion para auditar un repositorio publico de GitHub. Clona el repositorio (shallow clone, depth=1), extrae todos los archivos .java y ejecuta el pipeline multi-agente.
+      required:
+        - repositoryUrl
+        - branch
+      properties:
+        repositoryUrl:
+          type: string
+          pattern: '^https:\/\/github\.com\/[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+\.git$'
+          description: URL HTTPS completa del repositorio publico de GitHub. Debe terminar en .git. Solo repositorios publicos en github.com son aceptados (prevencion SSRF).
+          example: "https://github.com/4M4L4K4Ky/vulnerable-bank-api.git"
+        branch:
+          type: string
+          pattern: '^[a-zA-Z0-9_.-]+$'
+          minLength: 1
+          maxLength: 255
+          description: "Rama del repositorio a auditar. Se recomienda main o master. Caracteres permitidos: alfanumericos, guiones bajos, guiones medios y puntos."
+          example: "main"
+
+    AuditReport:
+      type: object
+      properties:
+        scanId:
+          type: string
+          description: Identificador único universal del escaneo.
+          example: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+        status:
+          type: string
+          enum: [IN_PROGRESS, COMPLETED, FAILED]
+          description: Estado del ciclo de vida del agregado de auditoría.
+          example: "COMPLETED"
+        vulnerabilities:
+          type: array
+          description: Listado de hallazgos detectados y remediados por la IA.
+          items:
+            $ref: '#/components/schemas/Vulnerability'
+        repositoryUrl:
+          type: string
+          description: URL del repositorio auditado.
+          example: "https://github.com/amalakaky/vulnerable-app-demo.git"
+        branchName:
+          type: string
+          description: Rama del repositorio auditado.
+          example: "main"
+
+    Vulnerability:
+      type: object
+      properties:
+        cweId:
+          type: string
+          pattern: '^CWE-\d+$'
+          description: Identificador estándar Common Weakness Enumeration.
+          example: "CWE-89"
+        severity:
+          type: object
+          properties:
+            value:
+              type: integer
+              minimum: 1
+              maximum: 10
+              description: Puntuación de severidad validada por el Value Object de dominio (1-10).
+              example: 9
+        description:
+          type: string
+          description: Análisis técnico aportado por el Auditor Agent.
+          example: "Improper Neutralization of Special Elements used in an SQL Command"
+        remediationPatch:
+          type: string
+          description: Parche seguro generado por el Remediation Agent.
+          example: "PreparedStatement stmt = conn.prepareStatement(?);"
+
+    CweCount:
+      type: object
+      description: Conteo de vulnerabilidades agrupadas por identificador CWE.
+      properties:
+        cweId:
+          type: string
+          description: Identificador Common Weakness Enumeration.
+          example: "CWE-89"
+        count:
+          type: integer
+          format: int64
+          description: Número de vulnerabilidades con este CWE.
+          example: 8
+
+    AuditSummary:
+      type: object
+      description: Resumen de una auditoría individual.
+      properties:
+        scanId:
+          type: string
+          description: Identificador único del escaneo.
+          example: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+        date:
+          type: string
+          format: date-time
+          description: Fecha de realización del escaneo.
+        repositoryUrl:
+          type: string
+          description: URL del repositorio auditado.
+          example: "https://github.com/amalakaky/vulnerable-app-demo.git"
+        branchName:
+          type: string
+          description: Rama auditada.
+          example: "main"
+        totalVulnerabilities:
+          type: integer
+          format: int64
+          description: Total de vulnerabilidades encontradas en esta auditoría.
+          example: 5
+
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: "admin"
+        password:
+          type: string
+          minLength: 1
+          maxLength: 255
+          example: "securepassword123"
+
+    RegisterRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 100
+          example: "newuser"
+        password:
+          type: string
+          minLength: 6
+          maxLength: 255
+          example: "mypassword"
+        scopes:
+          type: array
+          description: Scopes del usuario. Opcional, por defecto ["READER"].
+          items:
+            type: string
+            enum: [READER, WRITER]
+          default: ["READER"]
+          example: ["READER", "WRITER"]
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: Token JWT de acceso.
+          example: "eyJhbGciOiJIUzI1NiJ9..."
+        username:
+          type: string
+          example: "admin"
+        scopes:
+          type: string
+          description: Scopes del usuario separados por coma (READER, WRITER, etc.)
+          example: "READER,WRITER"
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+        username:
+          type: string
+          example: "admin"
+        scopes:
+          type: string
+          description: Scopes del usuario separados por coma.
+          example: "READER,WRITER"
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error descriptivo.
+          example: "Credenciales invalidas"
+
+    AuditStatisticsResponse:
+      type: object
+      properties:
+        totalAudits:
+          type: integer
+          format: int64
+          description: Total de auditorías realizadas en la plataforma.
+          example: 42
+        totalVulnerabilities:
+          type: integer
+          format: int64
+          description: Total de vulnerabilidades detectadas en todas las auditorías.
+          example: 156
+        severityCounts:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int64
+          description: Vulnerabilidades agrupadas por nivel de severidad.
+          example: {"9": 12, "7": 34, "3": 89, "1": 21}
+        byCwe:
+          type: array
+          description: Top CWEs más frecuentes.
+          items:
+            $ref: '#/components/schemas/CweCount'
+        recentAudits:
+          type: array
+          description: Últimas auditorías realizadas.
+          items:
+            $ref: '#/components/schemas/AuditSummary'

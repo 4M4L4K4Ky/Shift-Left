@@ -1,0 +1,59 @@
+package com.amalakaky.aegiscode.application.usecase;
+
+import com.amalakaky.aegiscode.application.port.in.GetAuditReportUseCase;
+import com.amalakaky.aegiscode.application.port.in.GetAuditStatisticsUseCase;
+import com.amalakaky.aegiscode.application.port.out.ReportGeneratorPort;
+import com.amalakaky.aegiscode.application.port.out.db.AuditStatisticsRepositoryPort;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+@Service
+public class GetAuditReportUseCaseImpl implements GetAuditReportUseCase {
+
+  private static final Logger log = LoggerFactory.getLogger(GetAuditReportUseCaseImpl.class);
+
+  private final GetAuditStatisticsUseCase statsUseCase;
+  private final AuditStatisticsRepositoryPort statsPort;
+  private final ReportGeneratorPort reportGenerator;
+
+  /**
+   * Constructor que inyecta los casos de uso y puertos de generación de informes.
+   */
+  public GetAuditReportUseCaseImpl(GetAuditStatisticsUseCase statsUseCase,
+      AuditStatisticsRepositoryPort statsPort,
+      ReportGeneratorPort reportGenerator) {
+    this.statsUseCase = statsUseCase;
+    this.statsPort = statsPort;
+    this.reportGenerator = reportGenerator;
+  }
+
+  @Override
+  public byte[] getGlobalReport() {
+    var dashboard = statsUseCase.getDashboardStats();
+
+    List<AuditDetail> recentAudits = statsPort.findRecentAudits(10).stream()
+        .map(a -> new AuditDetail(
+            a.scanId(),
+            a.date(),
+            a.repositoryUrl(),
+            a.branchName(),
+            List.of()
+        ))
+        .collect(Collectors.toList());
+
+    var data = new GlobalReportData(
+        dashboard.totalAudits(),
+        dashboard.totalVulnerabilities(),
+        dashboard.bySeverity(),
+        dashboard.byCwe(),
+        recentAudits
+    );
+
+    log.info("Generando informe PDF global: {} auditorias, {} vulnerabilidades",
+        data.totalAudits(), data.totalVulnerabilities());
+    return reportGenerator.generateGlobalPdf(data);
+  }
+}
