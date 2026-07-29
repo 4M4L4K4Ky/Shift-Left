@@ -1,24 +1,24 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg-primary: #0a0a0f;
-  --color-bg-secondary: #0f0f18;
-  --color-bg-card: #13131e;
-  --color-bg-hover: #1a1a2e;
-  --color-border-subtle: #1e1e32;
-  --color-border-glow: #00d4ff;
-  --color-accent: #00d4ff;
-  --color-accent-hover: #00b8e6;
-  --color-accent-secondary: #7c3aed;
-  --color-accent-secondary-hover: #6d28d9;
-  --color-text-primary: #f0f0f5;
-  --color-text-secondary: #9494a8;
-  --color-text-muted: #5c5c72;
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    --color-bg-primary: #0a0a0f;
+    --color-bg-secondary: #0f0f18;
+    --color-bg-card: #13131e;
+    --color-bg-hover: #1a1a2e;
+    --color-border-subtle: #1e1e32;
+    --color-border-glow: #00d4ff;
+    --color-accent: #00d4ff;
+    --color-accent-hover: #00b8e6;
+    --color-accent-secondary: #7c3aed;
+    --color-accent-secondary-hover: #6d28d9;
+    --color-text-primary: #f0f0f5;
+    --color-text-secondary: #9494a8;
+    --color-text-muted: #5c5c72;
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-error: #ef4444;
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -26,97 +26,88 @@
 html { scroll-behavior: smooth; width: 100%; }
 
 body {
-  width: 100%;
-  background-color: var(--color-bg-primary);
-  color: var(--color-text-primary);
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    width: 100%;
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 #root { width: 100%; min-height: 100vh; }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
+    font-family: var(--font-display);
 }
 
 ::selection {
-  background: rgba(0, 212, 255, 0.2);
+    background: rgba(0, 212, 255, 0.2);
 }
 
 /* ── Glassmorphism utilities ── */
 .glass {
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .glass-strong {
-  backdrop-filter: blur(32px);
-  -webkit-backdrop-filter: blur(32px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 /* ── Neon glow effects ── */
 .neon-glow {
-  box-shadow:
-    0 0 15px rgba(0, 212, 255, 0.15),
-    0 0 30px rgba(0, 212, 255, 0.05),
-    inset 0 0 15px rgba(0, 212, 255, 0.05);
+    box-shadow:
+            0 0 15px rgba(0, 212, 255, 0.15),
+            0 0 30px rgba(0, 212, 255, 0.05),
+            inset 0 0 15px rgba(0, 212, 255, 0.05);
 }
 
 .neon-border {
-  box-shadow:
-    0 0 0 1px rgba(0, 212, 255, 0.3),
-    0 0 15px rgba(0, 212, 255, 0.1);
+    box-shadow:
+            0 0 0 1px rgba(0, 212, 255, 0.3),
+            0 0 15px rgba(0, 212, 255, 0.1);
 }
 
 .neon-text {
-  text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
 }
 
 /* ── Animated gradient mesh ── */
 .mesh-gradient {
-  background:
-    radial-gradient(ellipse 80% 60% at 0% 50%, rgba(0, 212, 255, 0.08) 0%, transparent 70%),
-    radial-gradient(ellipse 80% 60% at 100% 50%, rgba(124, 58, 237, 0.08) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(0, 212, 255, 0.04) 0%, transparent 60%);
+    background:
+            radial-gradient(ellipse 80% 60% at 0% 50%, rgba(0, 212, 255, 0.08) 0%, transparent 70%),
+            radial-gradient(ellipse 80% 60% at 100% 50%, rgba(124, 58, 237, 0.08) 0%, transparent 70%),
+            radial-gradient(ellipse 60% 40% at 50% 0%, rgba(0, 212, 255, 0.04) 0%, transparent 60%);
 }
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--color-bg-primary); }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border-subtle);
-  border-radius: 3px;
+    background: var(--color-border-subtle);
+    border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-muted);
+    background: var(--color-text-muted);
 }
 
 /* ── Animated border for inputs ── */
 @keyframes border-glow {
-  0%, 100% { border-color: rgba(0, 212, 255, 0.3); box-shadow: 0 0 10px rgba(0, 212, 255, 0.05); }
-  50% { border-color: rgba(0, 212, 255, 0.6); box-shadow: 0 0 20px rgba(0, 212, 255, 0.1); }
+    0%, 100% { border-color: rgba(0, 212, 255, 0.3); box-shadow: 0 0 10px rgba(0, 212, 255, 0.05); }
+    50% { border-color: rgba(0, 212, 255, 0.6); box-shadow: 0 0 20px rgba(0, 212, 255, 0.1); }
 }
 
 .input-glow:focus {
-  animation: border-glow 2s ease-in-out infinite;
+    animation: border-glow 2s ease-in-out infinite;
 }
 
 /* ── Data grid pattern ── */
 .data-grid {
-  background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.04) 1px, transparent 0);
-  background-size: 24px 24px;
+    background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.04) 1px, transparent 0);
+    background-size: 24px 24px;
 }
 
-/* ── Login input icon hide on typing ── */
-.input-group .input-icon {
-  transition: opacity 0.15s ease;
-}
-
-.input-group input:not(:placeholder-shown) ~ .input-icon {
-  opacity: 0;
-  pointer-events: none;
-}
