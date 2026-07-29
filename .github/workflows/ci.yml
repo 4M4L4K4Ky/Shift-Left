@@ -34,6 +34,7 @@ jobs:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           ORACLE_TNS_ADMIN: infra/oracle-wallet
           TOKEN: ${{ secrets.TOKEN }}
+          DB_ORACLE: ${{ secrets.DB_ORACLE  }}
         run: mvn clean verify -Dspring.profiles.active=prod
 
 
