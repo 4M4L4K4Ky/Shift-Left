@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:oracle:thin:@(description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1521)(host=adb.eu-madrid-3.oraclecloud.com))(connect_data=(service_name=g8e9a9b11878921_aegiscodedb_high.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+    url: ${DB_ORACLE}
     username: ${ORACLE_USER}
     password: ${ORACLE_DB_PASSWORD}
     driver-class-name: oracle.jdbc.OracleDriver
