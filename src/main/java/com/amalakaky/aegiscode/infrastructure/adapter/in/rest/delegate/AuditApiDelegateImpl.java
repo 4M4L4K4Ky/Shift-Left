@@ -15,9 +15,6 @@ import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.GitHubScanRequ
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.ScanRequestDto;
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.VulnerabilityDto;
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.VulnerabilitySeverityDto;
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -101,25 +98,14 @@ public class AuditApiDelegateImpl implements AuditEngineApiDelegate {
 
     long startTime = System.currentTimeMillis();
     try {
-      List<File> sourceFiles = gitProviderPort.fetchSourceFiles(repositoryUrl, branch);
+      String codePayload = gitProviderPort.fetchSourceFiles(repositoryUrl, branch);
 
-      log.info("JGit [ScanID: {}] - Extraídos {} archivos .java", scanId,
-          sourceFiles.size());
-
-      StringBuilder codePayload = new StringBuilder();
-      for (File file : sourceFiles) {
-        try {
-          codePayload.append("--- Archivo: ").append(file.getName()).append(" ---\n");
-          codePayload.append(Files.readString(file.toPath(), StandardCharsets.UTF_8))
-              .append("\n\n");
-        } catch (java.io.IOException e) {
-          log.warn("No se pudo leer el archivo {}", file.getName());
-        }
-      }
+      log.info("JGit [ScanID: {}] - Código extraído ({} caracteres)", scanId,
+          codePayload.length());
 
       AuditReport domainReport = analyzeCodeUseCase.executeRepositoryScan(
           scanId,
-          codePayload.toString(),
+          codePayload,
           gitHubScanRequestDto.getRepositoryUrl(),
           gitHubScanRequestDto.getBranch()
       );

@@ -1,19 +1,16 @@
 package com.amalakaky.aegiscode.application.port.out.vcs;
 
-import java.io.File;
-import java.util.List;
-
 public interface GitProviderPort {
 
   /**
-   * Clona o descarga de forma temporal un repositorio remoto y extrae
-   * los ficheros de código fuente relevantes para la auditoría.
+   * Clona un repositorio remoto y retorna el contenido concatenado de los
+   * archivos fuente relevantes para la auditoria.
    *
-     * @param repositoryUrl URL HTTPS o SSH del repositorio Git.
-     * @param branch Rama específica a auditar (ej. main, develop).
-   * @return Lista de archivos fuente filtrados listos para el análisis AST.
+   * @param repositoryUrl URL HTTPS del repositorio Git.
+   * @param branch        Rama a auditar (ej. main, develop).
+   * @return Contenido de todos los archivos fuente concatenados.
    */
-  List<File> fetchSourceFiles(String repositoryUrl, String branch);
+  String fetchSourceFiles(String repositoryUrl, String branch);
 }
 
 

@@ -23,7 +23,6 @@ import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.AuditReportDto
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.AuditReportDto.StatusEnum;
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.GitHubScanRequestDto;
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.ScanRequestDto;
-import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -152,8 +151,7 @@ class AuditApiDelegateImplTest {
       var request = new GitHubScanRequestDto();
       request.setRepositoryUrl("https://github.com/test/repo.git");
       request.setBranch("main");
-      var file = new File("pom.xml");
-      when(gitProviderPort.fetchSourceFiles(anyString(), anyString())).thenReturn(List.of(file));
+      when(gitProviderPort.fetchSourceFiles(anyString(), anyString())).thenReturn("code content");
       var report = completedReport("scan-repo-1", List.of(
           new Vulnerability("CWE-22", new SeverityScore(5), "Path Traversal", "fix")
       ));
@@ -168,12 +166,11 @@ class AuditApiDelegateImplTest {
     }
 
     @Test
-    void whenFileReadFails_shouldLogAndContinue() throws Exception {
+    void whenEmptyCode_shouldNotFail() throws Exception {
       var request = new GitHubScanRequestDto();
       request.setRepositoryUrl("https://github.com/test/repo.git");
       request.setBranch("main");
-      var dir = new File(System.getProperty("java.io.tmpdir"));
-      when(gitProviderPort.fetchSourceFiles(anyString(), anyString())).thenReturn(List.of(dir));
+      when(gitProviderPort.fetchSourceFiles(anyString(), anyString())).thenReturn("");
       var report = completedReport("scan-repo-2", List.of());
       when(analyzeCodeUseCase.executeRepositoryScan(anyString(), anyString(), anyString(), anyString()))
           .thenReturn(report);

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
@@ -14,7 +15,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import org.eclipse.jgit.api.CloneCommand;
@@ -30,10 +30,10 @@ class JGitAdapterTest {
   @SneakyThrows
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
-  void fetchSourceFiles_shouldReturnJavaFilesWhenCloneSucceeds() {
+  void fetchSourceFiles_shouldReturnConcatenatedContentWhenCloneSucceeds() {
     Path tempDirPath = Path.of("/tmp/test-repo");
-    File javaFile1 = new File("Test.java");
-    File javaFile2 = new File("Main.java");
+    Path javaPath1 = tempDirPath.resolve("Test.java");
+    Path javaPath2 = tempDirPath.resolve("Main.java");
     CloneCommand cloneCmd = mock(CloneCommand.class);
     Git git = mock(Git.class);
 
@@ -52,19 +52,33 @@ class JGitAdapterTest {
 
       Stream walkStream = mock(Stream.class);
       when(walkStream.filter(any())).thenReturn(walkStream);
-      when(walkStream.map(any())).thenReturn(walkStream);
-      when(walkStream.toList()).thenReturn(List.of(javaFile1, javaFile2));
+      doAnswer(invocation -> {
+        java.util.function.Consumer consumer = invocation.getArgument(0);
+        consumer.accept(javaPath1);
+        consumer.accept(javaPath2);
+        return null;
+      }).when(walkStream).forEach(any());
+
+      filesMock.when(() -> Files.readString(javaPath1, java.nio.charset.StandardCharsets.UTF_8))
+          .thenReturn("class Test {}");
+      filesMock.when(() -> Files.readString(javaPath2, java.nio.charset.StandardCharsets.UTF_8))
+          .thenReturn("class Main {}");
 
       Stream cleanupStream = mock(Stream.class);
       when(cleanupStream.sorted(any())).thenReturn(cleanupStream);
       when(cleanupStream.map(any())).thenReturn(cleanupStream);
 
-      filesMock.when(() -> Files.walk(tempDirPath)).thenReturn(walkStream, cleanupStream);
+      filesMock.when(() -> Files.walk(tempDirPath))
+          .thenReturn(walkStream, cleanupStream);
 
       var adapter = new JGitAdapter("dummy-token");
       var result = adapter.fetchSourceFiles("https://github.com/test/repo.git", "main");
 
-      assertThat(result).hasSize(2);
+      assertThat(result)
+          .contains("--- Archivo: Test.java ---")
+          .contains("class Test {}")
+          .contains("--- Archivo: Main.java ---")
+          .contains("class Main {}");
     }
   }
 
@@ -147,20 +161,27 @@ class JGitAdapterTest {
 
   @SneakyThrows
   @Test
-  void extractJavaFiles_shouldReturnJavaFiles() {
+  void readJavaFiles_shouldReturnConcatenatedContent() {
     var tempDir = java.nio.file.Files.createTempDirectory("jgit-test").toFile();
     try {
-      new File(tempDir, "Test.java").createNewFile();
-      new File(tempDir, "Main.java").createNewFile();
+      File testFile = new File(tempDir, "Test.java");
+      File mainFile = new File(tempDir, "Main.java");
+      testFile.createNewFile();
+      mainFile.createNewFile();
       new File(tempDir, "notes.txt").createNewFile();
+      java.nio.file.Files.writeString(testFile.toPath(), "class Test {}");
+      java.nio.file.Files.writeString(mainFile.toPath(), "class Main {}");
 
       var adapter = new JGitAdapter("dummy-token");
-      Method method = JGitAdapter.class.getDeclaredMethod("extractJavaFiles", File.class);
+      Method method = JGitAdapter.class.getDeclaredMethod("readJavaFiles", File.class);
       method.setAccessible(true);
-      var result = (List<File>) method.invoke(adapter, tempDir);
+      var result = (String) method.invoke(adapter, tempDir);
 
-      assertThat(result).hasSize(2);
-      assertThat(result).allMatch(f -> f.getName().endsWith(".java"));
+      assertThat(result)
+          .contains("--- Archivo: Test.java ---")
+          .contains("class Test {}")
+          .contains("--- Archivo: Main.java ---")
+          .contains("class Main {}");
     } finally {
       for (var f : tempDir.listFiles()) f.delete();
       tempDir.delete();
@@ -170,14 +191,14 @@ class JGitAdapterTest {
   @SneakyThrows
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
-  void extractJavaFiles_shouldThrowIllegalStateWhenIoException() {
+  void readJavaFiles_shouldThrowIllegalStateWhenIoException() {
     var tempDir = new File("/tmp/repo");
 
     try (MockedStatic<Files> filesMock = mockStatic(Files.class)) {
       filesMock.when(() -> Files.walk(tempDir.toPath())).thenThrow(new IOException("disk full"));
 
       var adapter = new JGitAdapter("dummy-token");
-      Method method = JGitAdapter.class.getDeclaredMethod("extractJavaFiles", File.class);
+      Method method = JGitAdapter.class.getDeclaredMethod("readJavaFiles", File.class);
       method.setAccessible(true);
 
       assertThatThrownBy(() -> {
