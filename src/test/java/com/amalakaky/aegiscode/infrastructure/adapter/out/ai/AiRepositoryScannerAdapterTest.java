@@ -133,7 +133,10 @@ class AiRepositoryScannerAdapterTest {
 
   @Test
   void shouldHandleJsonWithMarkdownFences() {
-    var jsonResponse = "```json\n{\"vulnerabilities\": [{\"cweId\": \"CWE-22\", \"severity\": 7, \"description\": \"Path traversal\", \"remediationPatch\": \"fix\"}]}\n```";
+    var jsonResponse = "```json\n"
+        + "{\"vulnerabilities\": [{\"cweId\": \"CWE-22\", \"severity\": 7, "
+        + "\"description\": \"Path traversal\", \"remediationPatch\": \"fix\"}]}\n"
+        + "```";
 
     var generation = new Generation(jsonResponse);
     var chatResponse = new ChatResponse(List.of(generation));
@@ -146,20 +149,20 @@ class AiRepositoryScannerAdapterTest {
     assertThat(result.get(0).getCweId()).isEqualTo("CWE-22");
   }
 
-    @Test
-    void shouldReturnEmptyWhenJsonIsNullLiteral() {
-        var generation = new Generation("null");
-        var chatResponse = new ChatResponse(List.of(generation));
-        when(chatModel.call(any(Prompt.class))).thenReturn(chatResponse);
+  @Test
+  void shouldReturnEmptyWhenJsonIsNullLiteral() {
+    var generation = new Generation("null");
+    var chatResponse = new ChatResponse(List.of(generation));
+    when(chatModel.call(any(Prompt.class))).thenReturn(chatResponse);
 
-        var adapter = new AiRepositoryScannerAdapter(chatModel, objectMapper);
-        var result = adapter.scanRepository("code");
+    var adapter = new AiRepositoryScannerAdapter(chatModel, objectMapper);
+    var result = adapter.scanRepository("code");
 
-        assertThat(result).isEmpty();
-    }
+    assertThat(result).isEmpty();
+  }
 
-    @Test
-    void shouldReturnEmptyOnException() {
+  @Test
+  void shouldReturnEmptyOnException() {
     when(chatModel.call(any(Prompt.class))).thenThrow(new RuntimeException("API error"));
 
     var adapter = new AiRepositoryScannerAdapter(chatModel, objectMapper);

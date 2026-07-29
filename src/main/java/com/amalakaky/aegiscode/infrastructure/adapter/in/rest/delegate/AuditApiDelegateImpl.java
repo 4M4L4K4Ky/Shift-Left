@@ -3,10 +3,10 @@ package com.amalakaky.aegiscode.infrastructure.adapter.in.rest.delegate;
 import com.amalakaky.aegiscode.application.port.in.AnalyzeCodeUseCase;
 import com.amalakaky.aegiscode.application.port.in.GetAuditReportUseCase;
 import com.amalakaky.aegiscode.application.port.in.GetAuditStatisticsUseCase;
+import com.amalakaky.aegiscode.application.port.in.GetAuditStatisticsUseCase.DashboardStats;
 import com.amalakaky.aegiscode.application.port.out.vcs.GitProviderPort;
 import com.amalakaky.aegiscode.domain.model.AuditReport;
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.AuditEngineApiDelegate;
-import com.amalakaky.aegiscode.application.port.in.GetAuditStatisticsUseCase.DashboardStats;
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.AuditReportDto;
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.AuditStatisticsResponseDto;
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.AuditSummaryDto;
@@ -15,12 +15,7 @@ import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.GitHubScanRequ
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.ScanRequestDto;
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.VulnerabilityDto;
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.VulnerabilitySeverityDto;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -28,6 +23,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Implementacion del delegado REST generado por OpenAPI.
@@ -51,6 +53,9 @@ public class AuditApiDelegateImpl implements AuditEngineApiDelegate {
   private final GetAuditStatisticsUseCase getAuditStatisticsUseCase;
   private final GetAuditReportUseCase getAuditReportUseCase;
 
+  /**
+   * Constructor que inyecta los casos de uso y puertos necesarios.
+   */
   public AuditApiDelegateImpl(AnalyzeCodeUseCase analyzeCodeUseCase,
       GitProviderPort gitProviderPort,
       GetAuditStatisticsUseCase getAuditStatisticsUseCase,
@@ -88,7 +93,8 @@ public class AuditApiDelegateImpl implements AuditEngineApiDelegate {
   }
 
   @Override
-  public ResponseEntity<AuditReportDto> auditsRepositoryPost(GitHubScanRequestDto gitHubScanRequestDto) {
+  public ResponseEntity<AuditReportDto> auditsRepositoryPost(
+      GitHubScanRequestDto gitHubScanRequestDto) {
     String scanId = UUID.randomUUID().toString();
     String repositoryUrl = gitHubScanRequestDto.getRepositoryUrl();
     String branch = gitHubScanRequestDto.getBranch();

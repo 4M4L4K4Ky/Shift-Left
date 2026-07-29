@@ -41,6 +41,9 @@ public class UserEntity {
   private LocalDateTime updatedAt;
 
   @Builder
+  /**
+   * Constructor utilizado por Lombok Builder para crear una entidad de usuario.
+   */
   public UserEntity(String id, String username, String passwordHash,
       String scopes, boolean enabled) {
     this.id = id;

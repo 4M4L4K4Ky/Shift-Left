@@ -19,6 +19,9 @@ public class GetAuditReportUseCaseImpl implements GetAuditReportUseCase {
   private final AuditStatisticsRepositoryPort statsPort;
   private final ReportGeneratorPort reportGenerator;
 
+  /**
+   * Constructor que inyecta los casos de uso y puertos de generación de informes.
+   */
   public GetAuditReportUseCaseImpl(GetAuditStatisticsUseCase statsUseCase,
       AuditStatisticsRepositoryPort statsPort,
       ReportGeneratorPort reportGenerator) {

@@ -16,6 +16,9 @@ public class AiRemediationAdapter implements RemediationAgentPort {
 
   private final ChatClient chatClient;
 
+  /**
+   * Constructor que configura el cliente de chat con el prompt del sistema.
+   */
   public AiRemediationAdapter(ChatClient.Builder chatClientBuilder) {
     this.chatClient = chatClientBuilder
         .defaultSystem("Eres un arquitecto de software experto en refactorización segura"
@@ -30,7 +33,8 @@ public class AiRemediationAdapter implements RemediationAgentPort {
   @Override
   public String generateCleanPatch(String vulnerableCode, String cweId) {
     return chatClient.prompt()
-        .user("Corrige " + cweId + " en:\n\n" + PromptInjectionDefense.wrapInDelimiters(vulnerableCode))
+        .user("Corrige " + cweId + " en:\n\n"
+            + PromptInjectionDefense.wrapInDelimiters(vulnerableCode))
         .call()
         .content();
   }

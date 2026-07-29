@@ -15,6 +15,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
+  /**
+   * Configura la definición de OpenAPI para la documentación de la API.
+   */
   @Bean
   public OpenAPI aegisCodeOpenApi() {
     return new OpenAPI()

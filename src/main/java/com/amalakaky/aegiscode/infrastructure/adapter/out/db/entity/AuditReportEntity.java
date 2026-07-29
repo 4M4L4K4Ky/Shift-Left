@@ -57,6 +57,9 @@ public class AuditReportEntity {
   private List<VulnerabilityEntity> vulnerabilities = new ArrayList<>();
 
   @Builder
+  /**
+   * Constructor utilizado por Lombok Builder para crear una entidad de auditoría.
+   */
   public AuditReportEntity(String scanId, AuditReport.AuditStatus status,
       LocalDateTime createdAt, String repositoryUrl, String branchName,
       List<VulnerabilityEntity> vulnerabilities) {

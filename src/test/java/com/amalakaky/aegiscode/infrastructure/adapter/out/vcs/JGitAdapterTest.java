@@ -183,7 +183,9 @@ class JGitAdapterTest {
           .contains("--- Archivo: Main.java ---")
           .contains("class Main {}");
     } finally {
-      for (var f : tempDir.listFiles()) f.delete();
+      for (var f : tempDir.listFiles()) {
+        f.delete();
+      }
       tempDir.delete();
     }
   }

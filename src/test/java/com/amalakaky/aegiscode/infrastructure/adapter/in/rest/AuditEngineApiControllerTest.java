@@ -8,6 +8,7 @@ import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.AuditReportDto
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.AuditStatisticsResponseDto;
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.GitHubScanRequestDto;
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.ScanRequestDto;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,10 +36,12 @@ class AuditEngineApiControllerTest {
   }
 
   @Test
+  @SneakyThrows
   @SuppressWarnings("unchecked")
-  void auditsInlinePost_shouldDelegateToDelegate() throws Exception {
+  void auditsInlinePost_shouldDelegateToDelegate() {
     var request = new ScanRequestDto();
-    ResponseEntity<AuditReportDto> expected = (ResponseEntity<AuditReportDto>) (ResponseEntity<?>) ResponseEntity.accepted().build();
+    ResponseEntity<AuditReportDto> expected =
+        (ResponseEntity<AuditReportDto>) (ResponseEntity<?>) ResponseEntity.accepted().build();
     when(delegate.auditsInlinePost(request)).thenReturn(expected);
 
     ResponseEntity<AuditReportDto> response = controller.auditsInlinePost(request);
@@ -48,10 +51,12 @@ class AuditEngineApiControllerTest {
   }
 
   @Test
+  @SneakyThrows
   @SuppressWarnings("unchecked")
-  void auditsRepositoryPost_shouldDelegateToDelegate() throws Exception {
+  void auditsRepositoryPost_shouldDelegateToDelegate() {
     var request = new GitHubScanRequestDto();
-    ResponseEntity<AuditReportDto> expected = (ResponseEntity<AuditReportDto>) (ResponseEntity<?>) ResponseEntity.ok().build();
+    ResponseEntity<AuditReportDto> expected =
+        (ResponseEntity<AuditReportDto>) (ResponseEntity<?>) ResponseEntity.ok().build();
     when(delegate.auditsRepositoryPost(request)).thenReturn(expected);
 
     ResponseEntity<AuditReportDto> response = controller.auditsRepositoryPost(request);
@@ -61,9 +66,11 @@ class AuditEngineApiControllerTest {
   }
 
   @Test
+  @SneakyThrows
   @SuppressWarnings("unchecked")
-  void auditsStatisticsGet_shouldDelegateToDelegate() throws Exception {
-    ResponseEntity<AuditStatisticsResponseDto> expected = (ResponseEntity<AuditStatisticsResponseDto>) (ResponseEntity<?>) ResponseEntity.ok().build();
+  void auditsStatisticsGet_shouldDelegateToDelegate() {
+    ResponseEntity<AuditStatisticsResponseDto> expected =
+        (ResponseEntity<AuditStatisticsResponseDto>) (ResponseEntity<?>) ResponseEntity.ok().build();
     when(delegate.auditsStatisticsGet()).thenReturn(expected);
 
     ResponseEntity<AuditStatisticsResponseDto> response = controller.auditsStatisticsGet();
@@ -73,9 +80,11 @@ class AuditEngineApiControllerTest {
   }
 
   @Test
+  @SneakyThrows
   @SuppressWarnings("unchecked")
-  void getAuditReport_shouldDelegateToDelegate() throws Exception {
-    ResponseEntity<Resource> expected = (ResponseEntity<Resource>) (ResponseEntity<?>) ResponseEntity.ok().build();
+  void getAuditReport_shouldDelegateToDelegate() {
+    ResponseEntity<Resource> expected =
+        (ResponseEntity<Resource>) (ResponseEntity<?>) ResponseEntity.ok().build();
     when(delegate.getAuditReport()).thenReturn(expected);
 
     ResponseEntity<Resource> response = controller.getAuditReport();

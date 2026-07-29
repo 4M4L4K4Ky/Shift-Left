@@ -5,11 +5,14 @@ import java.util.regex.Pattern;
 final class PromptInjectionDefense {
 
   private static final Pattern[] INJECTION_PATTERNS = {
-      Pattern.compile("(?i)(?:ignora|ignorar|ignore|omite|olvida|desestima|anula)\\s+(?:las\\s+)?(?:instrucciones\\s+)?(?:anteriores|previas|de\\s+sistema|del\\s+sistema)",
+      Pattern.compile("(?i)(?:ignora|ignorar|ignore|omite|olvida|desestima|anula)\\s+"
+          + "(?:las\\s+)?(?:instrucciones\\s+)?(?:anteriores|previas|de\\s+sistema|del\\s+sistema)",
           Pattern.MULTILINE),
-      Pattern.compile("(?i)(?:ignore|forget|override|disregard|bypass|skip)\\s+(?:all\\s+)?(?:previous\\s+)?(?:instructions|commands|directives|rules)",
+      Pattern.compile("(?i)(?:ignore|forget|override|disregard|bypass|skip)\\s+"
+          + "(?:all\\s+)?(?:previous\\s+)?(?:instructions|commands|directives|rules)",
           Pattern.MULTILINE),
-      Pattern.compile("(?i)(?:tu\\s+eres|eres|actua\\s+como|ahora\\s+eres|you\\s+are|act\\s+as|from\\s+now\\s+on)",
+      Pattern.compile("(?i)(?:tu\\s+eres|eres|actua\\s+como|ahora\\s+eres|you\\s+are|act\\s+as"
+          + "|from\\s+now\\s+on)",
           Pattern.MULTILINE),
       Pattern.compile("(?i)(?:system\\s+prompt|prompt\\s+injection|jailbreak|dan\\b)",
           Pattern.MULTILINE),

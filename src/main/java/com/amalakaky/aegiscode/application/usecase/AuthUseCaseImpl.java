@@ -16,6 +16,9 @@ public class AuthUseCaseImpl implements AuthPort {
   private final PasswordEncoder passwordEncoder;
   private final TokenGeneratorPort tokenGenerator;
 
+  /**
+   * Constructor que inyecta las dependencias de autenticación.
+   */
   public AuthUseCaseImpl(UserRepositoryPort userRepository,
       PasswordEncoder passwordEncoder, TokenGeneratorPort tokenGenerator) {
     this.userRepository = userRepository;

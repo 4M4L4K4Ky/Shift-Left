@@ -2,10 +2,9 @@ package com.amalakaky.aegiscode.infrastructure.adapter.in.rest.delegate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
-
-import static org.mockito.ArgumentMatchers.any;
 
 import com.amalakaky.aegiscode.application.port.in.AnalyzeCodeUseCase;
 import com.amalakaky.aegiscode.application.port.in.GetAuditReportUseCase;
@@ -23,9 +22,6 @@ import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.AuditReportDto
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.AuditReportDto.StatusEnum;
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.GitHubScanRequestDto;
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.ScanRequestDto;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
 
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Nested;
@@ -36,6 +32,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 @ExtendWith(MockitoExtension.class)
 class AuditApiDelegateImplTest {
@@ -73,7 +73,8 @@ class AuditApiDelegateImplTest {
       var request = new ScanRequestDto();
       request.setSourceCode("public class Test {}");
       var report = completedReport("scan-1", List.of(
-          new Vulnerability("CWE-89", new SeverityScore(9), "SQL Injection", "fix"),
+          new Vulnerability("CWE-89", new SeverityScore(9), "SQL Injection",
+                  "fix"),
           new Vulnerability("CWE-79", new SeverityScore(7), "XSS", null)
       ));
       when(analyzeCodeUseCase.executeScan(anyString(), any())).thenReturn(report);
@@ -107,7 +108,8 @@ class AuditApiDelegateImplTest {
       var request = new ScanRequestDto();
       request.setSourceCode("code");
       var report = AuditReport.builder()
-          .scanId("scan-3").vulnerabilities(List.of()).status(null).repositoryUrl(null).branchName(null)
+          .scanId("scan-3").vulnerabilities(List.of())
+          .status(null).repositoryUrl(null).branchName(null)
           .build();
       when(analyzeCodeUseCase.executeScan(anyString(), any())).thenReturn(report);
 
@@ -147,7 +149,8 @@ class AuditApiDelegateImplTest {
   class AuditsRepositoryPost {
 
     @Test
-    void shouldReturn200WithMappedReport() throws Exception {
+    @SneakyThrows
+    void shouldReturn200WithMappedReport() {
       var request = new GitHubScanRequestDto();
       request.setRepositoryUrl("https://github.com/test/repo.git");
       request.setBranch("main");
@@ -155,7 +158,8 @@ class AuditApiDelegateImplTest {
       var report = completedReport("scan-repo-1", List.of(
           new Vulnerability("CWE-22", new SeverityScore(5), "Path Traversal", "fix")
       ));
-      when(analyzeCodeUseCase.executeRepositoryScan(anyString(), anyString(), anyString(), anyString()))
+      when(analyzeCodeUseCase.executeRepositoryScan(
+          anyString(), anyString(), anyString(), anyString()))
           .thenReturn(report);
 
       ResponseEntity<AuditReportDto> response = delegate.auditsRepositoryPost(request);
@@ -166,13 +170,14 @@ class AuditApiDelegateImplTest {
     }
 
     @Test
-    void whenEmptyCode_shouldNotFail() throws Exception {
+    void whenEmptyCode_shouldNotFail() {
       var request = new GitHubScanRequestDto();
       request.setRepositoryUrl("https://github.com/test/repo.git");
       request.setBranch("main");
       when(gitProviderPort.fetchSourceFiles(anyString(), anyString())).thenReturn("");
       var report = completedReport("scan-repo-2", List.of());
-      when(analyzeCodeUseCase.executeRepositoryScan(anyString(), anyString(), anyString(), anyString()))
+      when(analyzeCodeUseCase.executeRepositoryScan(
+          anyString(), anyString(), anyString(), anyString()))
           .thenReturn(report);
 
       ResponseEntity<AuditReportDto> response = delegate.auditsRepositoryPost(request);

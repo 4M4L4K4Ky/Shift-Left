@@ -15,6 +15,9 @@ public class ApiUtil {
     throw new UnsupportedOperationException("Utility class");
   }
 
+  /**
+   * Establece una respuesta de ejemplo para la documentación OpenAPI.
+   */
   public static void setExampleResponse(NativeWebRequest req, String contentType, String example) {
     try {
       HttpServletResponse res = req.getNativeResponse(HttpServletResponse.class);

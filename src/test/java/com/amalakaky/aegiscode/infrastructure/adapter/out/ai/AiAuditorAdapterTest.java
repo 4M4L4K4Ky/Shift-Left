@@ -82,7 +82,8 @@ class AiAuditorAdapterTest {
   @SneakyThrows
   private Optional<Vulnerability> invokeMapToDomain(AiAuditorAdapter.AuditorResponse response) {
     var adapter = new AiAuditorAdapter(ChatClient.builder(chatModel));
-    var method = AiAuditorAdapter.class.getDeclaredMethod("mapToDomain", AiAuditorAdapter.AuditorResponse.class);
+    var method = AiAuditorAdapter.class.getDeclaredMethod(
+        "mapToDomain", AiAuditorAdapter.AuditorResponse.class);
     method.setAccessible(true);
     return (Optional<Vulnerability>) method.invoke(adapter, response);
   }

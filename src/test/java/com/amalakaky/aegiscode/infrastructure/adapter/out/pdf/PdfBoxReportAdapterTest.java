@@ -124,7 +124,8 @@ class PdfBoxReportAdapterTest {
   }
 
   @Test
-  void generateGlobalPdf_withManyAudits_shouldHandlePageOverflowAndLinkAnnotations() throws IOException {
+  void generateGlobalPdf_withManyAudits_shouldHandlePageOverflowAndLinkAnnotations()
+      throws IOException {
     var manyAudits = IntStream.range(0, 55)
         .mapToObj(i -> {
           String repo = i < 10
@@ -186,54 +187,55 @@ class PdfBoxReportAdapterTest {
     }
   }
 
-    @Test
-    void generateGlobalPdf_withAudits_shouldCoverAllBranchesAndOverflow() throws IOException {
-        List<AuditDetail> audits = new ArrayList<>();
+  @Test
+  void generateGlobalPdf_withAudits_shouldCoverAllBranchesAndOverflow() throws IOException {
+    List<AuditDetail> audits = new ArrayList<>();
 
-        // 1. Rama http:// (primera condición del 'if' evaluada a true)
-        audits.add(new AuditDetail(
-                "scan-http", LocalDateTime.of(2026, 7, 25, 10, 0),
-                "http://example.com/repo-http.git", "main", List.of()
-        ));
+    // 1. Rama http:// (primera condición del 'if' evaluada a true)
+    audits.add(new AuditDetail(
+        "scan-http", LocalDateTime.of(2026, 7, 25, 10, 0),
+        "http://example.com/repo-http.git", "main", List.of()
+    ));
 
-        // 2. Rama https:// (primera condición false, segunda true)
-        audits.add(new AuditDetail(
-                "scan-https", LocalDateTime.of(2026, 7, 25, 10, 0),
-                "https://github.com/example/repo-https.git", "main", List.of()
-        ));
+    // 2. Rama https:// (primera condición false, segunda true)
+    audits.add(new AuditDetail(
+        "scan-https", LocalDateTime.of(2026, 7, 25, 10, 0),
+        "https://github.com/example/repo-https.git", "main", List.of()
+    ));
 
-        // 3. Rama sin http/https (ambas condiciones false -> bloque else)
-        audits.add(new AuditDetail(
-                "scan-inline", LocalDateTime.of(2026, 7, 25, 10, 0),
-                "INLINE_SOURCE_SNIPPET", "main", List.of()
-        ));
+    // 3. Rama sin http/https (ambas condiciones false -> bloque else)
+    audits.add(new AuditDetail(
+        "scan-inline", LocalDateTime.of(2026, 7, 25, 10, 0),
+        "INLINE_SOURCE_SNIPPET", "main", List.of()
+    ));
 
-        // 4. Rama repositoryUrl == null (evalúa repositoryUrl() != null a false -> repo = "N/A")
-        audits.add(new AuditDetail(
-                "scan-null", LocalDateTime.of(2026, 7, 25, 10, 0),
-                null, "main", List.of()
-        ));
+    // 4. Rama repositoryUrl == null (evalúa repositoryUrl() != null a false -> repo = "N/A")
+    audits.add(new AuditDetail(
+        "scan-null", LocalDateTime.of(2026, 7, 25, 10, 0),
+        null, "main", List.of()
+    ));
 
-        // 5. Overflow de elementos (> 42 auditorías) para forzar (y < MARGIN + 20) y ejecutar el 'continue'
-        for (int i = 0; i < 50; i++) {
-            audits.add(new AuditDetail(
-                    "scan-overflow-" + i, LocalDateTime.of(2026, 7, 25, 10, 0),
-                    "https://github.com/example/overflow-" + i + ".git", "main", List.of()
-            ));
-        }
-
-        var data = new GlobalReportData(
-                54L, 0L, Map.of(9, 1L), List.of(), audits
-        );
-
-        byte[] pdfBytes = adapter.generateGlobalPdf(data);
-
-        assertThat(pdfBytes).isNotEmpty();
-
-        try (PDDocument doc = Loader.loadPDF(pdfBytes)) {
-            assertThat(doc.getNumberOfPages()).isGreaterThanOrEqualTo(4);
-            PDPage lastPage = doc.getPage(doc.getNumberOfPages() - 1);
-            assertThat(lastPage.getAnnotations()).isNotEmpty();
-        }
+        // 5. Overflow de elementos (> 42 auditorías) para forzar (y < MARGIN + 20)
+        // y ejecutar el 'continue'
+    for (int i = 0; i < 50; i++) {
+      audits.add(new AuditDetail(
+          "scan-overflow-" + i, LocalDateTime.of(2026, 7, 25, 10, 0),
+          "https://github.com/example/overflow-" + i + ".git", "main", List.of()
+      ));
     }
+
+    var data = new GlobalReportData(
+        54L, 0L, Map.of(9, 1L), List.of(), audits
+    );
+
+    byte[] pdfBytes = adapter.generateGlobalPdf(data);
+
+    assertThat(pdfBytes).isNotEmpty();
+
+    try (PDDocument doc = Loader.loadPDF(pdfBytes)) {
+      assertThat(doc.getNumberOfPages()).isGreaterThanOrEqualTo(4);
+      PDPage lastPage = doc.getPage(doc.getNumberOfPages() - 1);
+      assertThat(lastPage.getAnnotations()).isNotEmpty();
+    }
+  }
 }

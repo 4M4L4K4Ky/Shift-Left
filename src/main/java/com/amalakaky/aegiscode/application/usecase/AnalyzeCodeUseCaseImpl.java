@@ -31,6 +31,9 @@ public class AnalyzeCodeUseCaseImpl implements AnalyzeCodeUseCase {
   private final RepositoryScannerPort repositoryScanner;
   private final AuditRepositoryPort repository;
 
+  /**
+   * Constructor que inyecta los puertos de salida necesarios.
+   */
   public AnalyzeCodeUseCaseImpl(AuditorAgentPort auditorAgent,
                   RemediationAgentPort remediationAgent,
                   RepositoryScannerPort repositoryScanner,

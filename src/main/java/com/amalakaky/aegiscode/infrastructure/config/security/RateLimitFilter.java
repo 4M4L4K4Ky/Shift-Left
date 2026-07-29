@@ -31,6 +31,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
   private final Bucket bucket;
 
+  /**
+   * Constructor que inicializa el bucket de rate limiting.
+   */
   public RateLimitFilter() {
     Bandwidth limit = Bandwidth.classic(
         MAX_REQUESTS_PER_MINUTE,

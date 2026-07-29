@@ -8,12 +8,14 @@ import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.AuthResponseDt
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.LoginRequestDto;
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.RegisterRequestDto;
 import com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto.UserResponseDto;
-import java.util.stream.Collectors;
-import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component
 public class AuthApiDelegateImpl implements AuthApiDelegate {

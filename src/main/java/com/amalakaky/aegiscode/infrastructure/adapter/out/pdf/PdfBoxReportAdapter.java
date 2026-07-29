@@ -2,16 +2,9 @@ package com.amalakaky.aegiscode.infrastructure.adapter.out.pdf;
 
 import com.amalakaky.aegiscode.application.port.in.GetAuditReportUseCase.AuditDetail;
 import com.amalakaky.aegiscode.application.port.in.GetAuditReportUseCase.GlobalReportData;
-import com.amalakaky.aegiscode.domain.model.CweCount;
 import com.amalakaky.aegiscode.application.port.out.ReportGeneratorPort;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import com.amalakaky.aegiscode.domain.model.CweCount;
+
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -25,8 +18,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 @Component
 public class PdfBoxReportAdapter implements ReportGeneratorPort {
+    // 1. Constantes para eliminar los números mágicos (Checkstyle S109)
+    private static final int SEV_CRITICAL = 9;
+    private static final int SEV_HIGH = 7;
+    private static final int SEV_MEDIUM = 4;
+    private static final int SEV_LOW = 1;
+
 
   private static final Logger log = LoggerFactory.getLogger(PdfBoxReportAdapter.class);
   private static final DateTimeFormatter DATE_FMT =
@@ -113,7 +121,8 @@ public class PdfBoxReportAdapter implements ReportGeneratorPort {
       y -= 22;
       writeMetric(cs, y, "Auditorias realizadas", String.valueOf(data.totalAudits()));
       y -= 16;
-      writeMetric(cs, y, "Vulnerabilidades encontradas", String.valueOf(data.totalVulnerabilities()));
+      writeMetric(cs, y, "Vulnerabilidades encontradas",
+          String.valueOf(data.totalVulnerabilities()));
       y -= 16;
       writeMetric(cs, y, "Tipos de CWE detectados", String.valueOf(data.topCwes().size()));
     }
@@ -358,14 +367,29 @@ public class PdfBoxReportAdapter implements ReportGeneratorPort {
     }
   }
 
-  private static String severityLabel(int sev) {
-    if (sev >= 9) return "Critico";
-    if (sev >= 7) return "Alto";
-    if (sev >= 4) return "Medio";
-    if (sev >= 1) return "Bajo";
-    return "Info";
-  }
-
+//  private static String severityLabel(int sev) {
+//    if (sev >= 9) {
+//      return "Critico";
+//    }
+//    if (sev >= 7) {
+//      return "Alto";
+//    }
+//    if (sev >= 4) {
+//      return "Medio";
+//    }
+//    if (sev >= 1) {
+//      return "Bajo";
+//    }
+//    return "Info";
+//  }
+// 2. Método limpio: 1 solo return, 0 sentencias 'if', devuelve String
+private static String severityLabel(int sev) {
+    return (sev >= SEV_CRITICAL) ? "Critico"
+            : (sev >= SEV_HIGH)     ? "Alto"
+            : (sev >= SEV_MEDIUM)   ? "Medio"
+            : (sev >= SEV_LOW)      ? "Bajo"
+            : "Info";
+}
   private void addCwesPage(PDDocument doc, GlobalReportData data) throws IOException {
     PDPage page = new PDPage(PDRectangle.A4);
     doc.addPage(page);
@@ -378,13 +402,13 @@ public class PdfBoxReportAdapter implements ReportGeneratorPort {
 
       float col0 = MARGIN;
       float col1 = col0 + 55;
-      float col2 = col1 + 250;
       float tableW = PAGE_W - MARGIN * 2;
 
       cs.setNonStrokingColor(0.85f, 0.85f, 0.85f);
       cs.addRect(MARGIN, y - 16, tableW, 16);
       cs.fill();
       cs.setNonStrokingColor(0, 0, 0);
+      float col2 = col1 + 250;
       writeLine(cs, BOLD, 9, col0 + 4, y - 5, "CWE");
       writeLine(cs, BOLD, 9, col1 + 4, y - 5, "Descripcion");
       writeLine(cs, BOLD, 9, col2 + 4, y - 5, "Total");
@@ -417,14 +441,14 @@ public class PdfBoxReportAdapter implements ReportGeneratorPort {
     float scanW = 180;
     float dateW = 80;
     float repoW = PAGE_W - MARGIN * 2 - scanW - dateW - 8;
-    float[] col = {MARGIN, MARGIN + scanW, MARGIN + scanW + dateW};
-    float tableW = PAGE_W - MARGIN * 2;
+      float tableW = PAGE_W - MARGIN * 2;
 
-    cs.setNonStrokingColor(0.85f, 0.85f, 0.85f);
-    cs.addRect(MARGIN, y - 16, tableW, 16);
-    cs.fill();
-    cs.setNonStrokingColor(0, 0, 0);
-    writeLine(cs, BOLD, 9, col[0] + 4, y - 5, "Scan ID");
+      cs.setNonStrokingColor(0.85f, 0.85f, 0.85f);
+      cs.addRect(MARGIN, y - 16, tableW, 16);
+      cs.fill();
+      cs.setNonStrokingColor(0, 0, 0);
+      float[] col = {MARGIN, MARGIN + scanW, MARGIN + scanW + dateW};
+      writeLine(cs, BOLD, 9, col[0] + 4, y - 5, "Scan ID");
     writeLine(cs, BOLD, 9, col[1] + 4, y - 5, "Fecha");
     writeLine(cs, BOLD, 9, col[2] + 4, y - 5, "Repositorio");
     y -= 22;

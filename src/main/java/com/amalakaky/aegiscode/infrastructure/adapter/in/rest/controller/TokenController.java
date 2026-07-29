@@ -19,6 +19,9 @@ public class TokenController {
   private final String expectedClientId;
   private final String expectedClientSecret;
 
+  /**
+   * Constructor que inyecta el servicio JWT y las credenciales esperadas.
+   */
   public TokenController(JwtService jwtService,
       @Value("${app.api.client-id}") String expectedClientId,
       @Value("${app.api.client-secret}") String expectedClientSecret) {
@@ -27,6 +30,9 @@ public class TokenController {
     this.expectedClientSecret = expectedClientSecret;
   }
 
+  /**
+   * Genera un token de acceso JWT para un cliente autenticado.
+   */
   @PostMapping("/token")
   public ResponseEntity<Map<String, String>> getToken(
       @RequestBody Map<String, String> body) {

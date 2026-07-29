@@ -26,6 +26,9 @@ public class SecurityConfig {
     this.jwtAuthFilter = jwtAuthFilter;
   }
 
+  /**
+   * Configura la cadena de filtros de seguridad HTTP.
+   */
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
@@ -52,6 +55,9 @@ public class SecurityConfig {
     return new BCryptPasswordEncoder();
   }
 
+  /**
+   * Configura la política CORS para permitir orígenes externos.
+   */
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
