@@ -1,123 +1,286 @@
-# 🛡️ AegisCode AI - Shift-Left DevSecOps Platform
+# 🛡️ AegisCode AI — Shift-Left DevSecOps Platform
 
-![Java](https://img.shields.io/badge/Java-21-orange.svg)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.0-brightgreen.svg)
-![Architecture](https://img.shields.io/badge/Architecture-Hexagonal%20%2B%20DDD-blue.svg)
-![Database](https://img.shields.io/badge/Database-Supabase%20%7C%20PostgreSQL-3ECF8E.svg)
-![AI](https://img.shields.io/badge/AI-Spring%20AI%20%2B%20Groq-4285F4.svg)
-![Status](https://img.shields.io/badge/Status-Active%20Development-success.svg)
+[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://jdk.java.net/21/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.0-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![Spring AI](https://img.shields.io/badge/Spring%20AI-1.0.0--M1-6DB33F.svg)](https://spring.io/projects/spring-ai)
+[![Oracle](https://img.shields.io/badge/Oracle-23c-red.svg)](https://www.oracle.com/database/)
+[![H2](https://img.shields.io/badge/H2-Local-lightgrey.svg)](https://www.h2database.com/)
+[![React](https://img.shields.io/badge/React-19-61DAFB.svg)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-8-646CFF.svg)](https://vitejs.dev/)
+[![Tailwind](https://img.shields.io/badge/Tailwind-4-06B6D4.svg)](https://tailwindcss.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6.svg)](https://www.typescriptlang.org/)
+[![JWT](https://img.shields.io/badge/Auth-JWT-purple.svg)](#-autenticación-y-autorización-jwt)
+[![PDFBox](https://img.shields.io/badge/Reports-PDFBox-8A2BE2.svg)](#-generación-de-informes-pdf)
+[![ArchUnit](https://img.shields.io/badge/ArchUnit-1.3.0-purple.svg)](https://www.archunit.org/)
+[![Bucket4j](https://img.shields.io/badge/Rate%20Limit-Bucket4j--8.10.1-orangered.svg)](#-seguridad-por-capas)
+[![JaCoCo](https://img.shields.io/badge/Coverage-JaCoCo-blueviolet.svg)](https://www.jacoco.org/)
+[![Status](https://img.shields.io/badge/Status-TFM-success.svg)](#-descripción-general)
+
+---
+
+## 📋 Descripción General
 
 Plataforma DevSecOps basada en una arquitectura multi-agente de Inteligencia Artificial. Diseñada para integrarse en etapas tempranas del ciclo de desarrollo (*Shift-Left*), interceptando, auditando y refactorizando código vulnerable mediante técnicas de *Clean Code* de forma totalmente automatizada.
 
-Este proyecto constituye el Trabajo de Fin de Máster (TFM).
+**AegisCode AI** combina un motor backend robusto en Spring Boot 3.3 con la potencia de LLMs de última generación (LLaMA 3.3 70B vía Groq). Cuenta con **autenticación JWT**, un **frontend interactivo en React 19** con dashboard analítico, API playground y control de acceso basado en roles (**READER**, **WRITER**, **ADMIN**).
 
----
+> 🎓 **Este proyecto constituye el Trabajo de Fin de Máster (TFM).**  
+> **Programa:** Máster en Desarrollo con IA
 
-## 🏗️ Arquitectura y Diseño
-
-El núcleo de AegisCode AI se sostiene sobre una **Arquitectura Hexagonal (Ports and Adapters)** estricta, combinada con **Domain-Driven Design (DDD)**. La capa de dominio es absolutamente agnóstica de frameworks, infraestructuras externas o anotaciones de persistencia.
-
-*   **Aislamiento del Dominio:** Las entidades core (como `AuditReport` o el Value Object `SeverityScore`) están protegidas de la infraestructura. El mapeo a DTOs (capa REST) y a Entidades JPA (capa de BD) se realiza en los límites de los adaptadores, garantizando una inmutabilidad total.
-*   **Gestión de Perfiles Estratégica:** Patrón de repositorio unificado que permite ejecución local ultrarrápida (H2 en memoria modo PostgreSQL) y despliegue en la nube transparente (Supabase).
-*   **Validación Estática:** Integración de validaciones de arquitectura en tiempo de compilación mediante `ArchUnit`.
-
-### Topología Multi-Agente (IA)
-La orquestación del LLM se divide aplicando el Principio de Responsabilidad Única (SRP) en un ecosistema de agentes deterministas:
-
-*   **Scanner Agent:** Extrae el AST del código, descarta ruido y detecta secretos expuestos (Red Team Inicial).
-*   **Auditor Agent:** Analiza el flujo de datos para confirmar vulnerabilidades lógicas complejas como SQL Injections o Race Conditions (Red Team Avanzado).
-*   **Remediation Agent:** Genera el parche mitigador aplicando patrones de diseño, respetando métricas de complejidad ciclomática y buenas prácticas de Clean Code (Blue Team).
-
----
-
-## 🔒 Seguridad por Diseño (DevSecOps)
-
-Al tratarse de una herramienta de ciberseguridad, la propia plataforma aplica estrategias de **Defensa en Profundidad (Defense in Depth)** en todas sus capas:
-
-1.  **Protección LLM (Prompt Injection):** El adaptador de salida de IA sanitiza el código fuente recibido neutralizando delimitadores maliciosos e impone un contrato de salida estricto en JSON, evitando que alucinaciones del modelo rompan la ejecución del backend.
-2.  **Seguridad API:** Protección contra el abuso de cuotas del LLM y ataques de denegación de servicio (DoS) mediante políticas de Rate Limiting.
-
-### 💾 Estrategia de Persistencia y Zero Trust (Supabase & Flyway)
-
-La capa de infraestructura de base de datos está gestionada íntegramente por **Flyway** para garantizar la idempotencia de los despliegues.
-
-Al operar en producción sobre un BaaS como Supabase, el diseño asume un modelo de amenaza donde los endpoints de PostgREST podrían quedar expuestos. Para mitigarlo, Flyway inyecta automáticamente una migración de hardening (`V2__enable_rls_security.sql`) que fuerza **Row Level Security (RLS)** a nivel de motor SQL:
-
-```sql
--- 1. Habilitar RLS en la tabla de reportes de auditoría
-ALTER TABLE audit_reports ENABLE ROW LEVEL SECURITY;
-
--- 2. Habilitar RLS en la tabla de control interno de Flyway
-ALTER TABLE flyway_schema_history ENABLE ROW LEVEL SECURITY;
-
--- 3. Denegar explícitamente el acceso a los roles expuestos a internet por Supabase
--- Esto garantiza que solo tu backend de Spring Boot (conectado con rol de postgres/servicio) pueda operar.
-DROP POLICY IF EXISTS deny_anon_audit ON audit_reports;
-CREATE POLICY deny_anon_audit ON audit_reports FOR ALL TO anon, authenticated USING (false);
-
-DROP POLICY IF EXISTS deny_anon_flyway ON flyway_schema_history;
-CREATE POLICY deny_anon_flyway ON flyway_schema_history FOR ALL TO anon, authenticated USING (false);
+```mermaid
+flowchart LR
+    A[Desarrollador] -->|Push / Commit| B[Pre-commit Hook]
+    B --> C[ArchUnit + Checkstyle]
+    B --> D["CI Pipeline<br/>GitHub Actions"]
+    D --> E{API REST}
+    E --> F["/api/auth/login"]
+    E --> G["/api/v1/audits/inline"]
+    E --> H["/api/v1/audits/repository"]
+    F --> K[JWT Token]
+    G & H --> L["Auditor Agent<br/>LLaMA 3.3 70B"]
+    L --> M["Remediation Agent<br/>LLaMA 3.3 70B"]
+    M --> N[("Oracle 23c / H2")]
+    N --> O["Frontend React<br/>Dashboard + Playground"]
 ```
 
-Esto asegura que la base de datos sea inexpugnable desde el exterior; **solo el backend de Spring Boot** está autorizado para realizar operaciones I/O.
+---
+
+## 🔗 Enlaces de la Entrega TFM
+
+| Recurso | Enlace / Ubicación |
+| :--- | :--- |
+| 🌐 **Despliegue Producción** | [AÑADIR_URL_AQUI] |
+| 📽️ **Slides / Presentación** | [AÑADIR_URL_AQUI] |
+| 🎬 **Vídeo Demostración** | [AÑADIR_URL_AQUI] |
+| 📖 **Repositorio GitHub** | [https://github.com/4M4L4K4Ky/Shift-Left](https://github.com/4M4L4K4Ky/Shift-Left) |
+| 📄 **Swagger UI (Local)** | `http://localhost:8080/swagger-ui/index.html` |
+| 🖥️ **Frontend (Dev)** | `http://localhost:5173` |
 
 ---
 
-## ⚙️ Integración Continua (CI/CD) y Pipeline Automatizado
+## 👤 Credenciales de Acceso (Evaluación TFM)
 
-Para garantizar la inmutabilidad y la calidad del código en cada iteración, el proyecto implementa un pipeline automatizado mediante **GitHub Actions**. Este flujo actúa como una barrera *fail-fast* para las ramas críticas (`main` y `develop`).
+Para evaluar el sistema, puede registrar un usuario vía API o utilizar el usuario administrador por defecto:
 
-El pipeline provisiona JDK 21 y ejecuta la fase `verify` de Maven, asegurando:
-*   Pase completo de la batería de pruebas unitarias y de integración.
-*   Disparo automático de las reglas de **ArchUnit** para proteger los límites de la arquitectura hexagonal.
-*   Inyección dinámica de credenciales vía GitHub Secrets para los conectores de base de datos.
+```bash
+# 1. Registrar usuario evaluador (WRITER + READER)
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin123","scopes":["READER","WRITER"]}'
+
+# 2. Iniciar sesión
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin123"}'
+
+# 3. Respuesta esperada:
+# { "token": "eyJ...", "username": "admin", "scopes": "READER,WRITER" }
+```
+
+### Tabla de Permisos por Rol
+| Rol | Permisos y Endpoints Accesibles |
+| :--- | :--- |
+| **ADMIN** | Acceso total a administración, métricas y auditorías. |
+| **WRITER** | Ejecución de auditorías inline (`/inline`) y análisis de repositorios (`/repository`). |
+| **READER** | Lectura de estadísticas (`/statistics`) y descarga de informes PDF (`/report`). |
 
 ---
 
-## ⚖️ Gobernanza y Calidad de Código (Innegociable)
+## 🛠️ Stack Tecnológico
 
-El código fuente de este proyecto se rige por un conjunto de reglas estáticas estrictas:
+### Backend (Spring Boot Core)
+| Capa / Componente | Tecnología | Versión / Detalle |
+| :--- | :--- | :--- |
+| **Lenguaje** | Java | JDK 21 |
+| **Framework Base** | Spring Boot | 3.3.0 |
+| **IA / LLM** | Spring AI + Groq LPU | 1.0.0-M1 (`llama-3.3-70b-versatile`) |
+| **Base de Datos (Prod)** | Oracle Autonomous DB | 23c (Oracle Cloud - ATP) |
+| **Base de Datos (Local)** | H2 Database | Modo compatibilidad PostgreSQL / Oracle |
+| **Migraciones DB** | Flyway | 5 migraciones SQL automatizadas |
+| **ORM / Persistencia** | Spring Data JPA / Hibernate | 6.x |
+| **Seguridad** | Spring Security + JWT | `jjwt` 0.12.6 |
+| **Rate Limiting** | Bucket4j | 8.10.1 |
+| **Operaciones Git** | Eclipse JGit | 6.10.0 |
+| **Generación PDF** | Apache PDFBox | 3.0.1 |
+| **Arquitectura Clean** | ArchUnit | 1.3.0 |
+| **Documentación API** | OpenAPI 3.0 + Swagger UI | `springdoc-openapi` 2.5.0 |
 
-1.  **Retorno Único:** Máximo un (1) `return` por método para asegurar flujos predecibles.
-2.  **Ciclomática Controlada:** Máximo tres (3) `if` por método, forzando el uso de polimorfismo o constructos funcionales (`Optional`, Patrón Strategy).
-3.  **Cero Números Mágicos:** Uso exclusivo de constantes (`static final`) o enums.
-4.  **Inmutabilidad por Defecto:** Uso extensivo de `records` de Java y clases `final` inmutables (Lombok `@Builder`).
+### Frontend (`landing/`)
+| Componente | Tecnología | Versión |
+| :--- | :--- | :--- |
+| **Framework UI** | React | 19.2.7 |
+| **Lenguaje** | TypeScript | ~6.0.2 |
+| **Bundler** | Vite | 8.1.1 |
+| **Estilos** | Tailwind CSS | 4.3.3 |
+| **Animaciones** | Framer Motion | 12.42.2 |
+| **Gráficas** | Recharts | 3.10.1 |
+| **Fondo Interactivo** | tsParticles | 4.3.2 |
+| **Router** | React Router DOM | 7.18.1 |
 
-**Instrucción obligatoria tras clonar el repositorio para habilitar el Pre-commit Hook:**
+---
+
+## 🏗️ Arquitectura Hexagonal + DDD
+
+El diseño del backend sigue estrictamente los principios de **Arquitectura Hexagonal (Ports & Adapters)** combinados con **Domain-Driven Design (DDD)**. La capa de dominio es inmutable y agnóstica de frameworks.
+
+```mermaid
+flowchart TD
+    subgraph L1 ["🌐 1. Capa de Presentación (Frontend React 19)"]
+        FE["Landing Page  |  Login Page  |  Dashboard  |  Endpoints  |  Admin"]
+    end
+
+    subgraph L2 ["🔌 2. Adaptadores de Entrada (REST Controllers)"]
+        AA["AuthApiDelegate<br/>(/api/auth/*)"]
+        ADA["AuditApiDelegate<br/>(/api/v1/audits/*)"]
+    end
+
+    subgraph L3 ["🎯 3. Capa de Aplicación (Puertos y Casos de Uso)"]
+        UC1["AuthUseCase"]
+        UC2["AnalyzeCodeUseCase"]
+        UC3["GetAuditReportUseCase"]
+        UC4["GetAuditStatisticsUseCase"]
+    end
+
+    subgraph L4 ["🧱 4. Capa de Dominio (Modelo Core Inmutable)"]
+        DOM["AuditReport  •  Vulnerability  •  SeverityScore  •  User  •  JwtToken"]
+    end
+
+    subgraph L5 ["⚙️ 5. Adaptadores de Salida (Infraestructura)"]
+        AI["🤖 Agentes IA (Groq / LLaMA 3.3)<br/>Scanner  |  Auditor  |  Remediation"]
+        DB["💾 Persistencia & DB<br/>Oracle 23c  |  H2 Database  |  Flyway"]
+        EXT["📄 Servicios Auxiliares<br/>PDFBox Report  |  JGit Adapter  |  Prompt Injection Defense"]
+    end
+
+    %% Flujo vertical limpio sin solapamientos
+    L1 -->|Peticiones HTTP / Bearer JWT| L2
+    L2 -->|Invoca Puertos de Entrada| L3
+    L3 -->|Gobierna Reglas con| L4
+    L3 -->|Persiste y Consulta vía| L5
+```
+
+---
+
+## 🚀 Instalación y Ejecución Paso a Paso
+
+### Requisitos Previos
+* **JDK 21+** (Temurin recomendado).
+* **Git** (se recomienda **Git Bash** en entornos Windows).
+* **Node.js 20+** y **npm**.
+* **Clave de API de Groq** (Gratuita en Console Groq).
+
+### 1. Clonar el Repositorio
+```bash
+git clone -b feature/landing_page [https://github.com/4M4L4K4Ky/Shift-Left.git](https://github.com/4M4L4K4Ky/Shift-Left.git)
+cd Shift-Left
+```
+
+### 2. Configurar Pre-commit Hook (OBLIGATORIO)
+El proyecto incluye una barrera de calidad local previa a cualquier `commit`. Al estar ubicada en `.githooks/pre-commit`, **cada desarrollador que clone el repositorio debe activarla manualmente** una sola vez ejecutando:
+
 ```bash
 git config core.hooksPath .githooks
 ```
 
+Esto redirige a Git para que ejecute los hooks almacenados en el directorio `.githooks/` en lugar de la carpeta predeterminada `.git/hooks/`.
+
+#### ¿Qué ejecuta automáticamente el hook en cada `git commit`?
+El script utiliza `#!/bin/sh` y desencadena la siguiente secuencia:
+1. `./mvnw clean test -Dtest=HexagonalArchitectureTest`: Verifica que ninguna regla de aislamiento de la arquitectura hexagonal haya sido violada mediante ArchUnit.
+2. `./mvnw checkstyle:check`: Verifica el cumplimiento de las reglas estáticas innegociables:
+    * **Máximo 1 `return` por método.**
+    * **Máximo 3 sentencias `if` por método.**
+    * **0 números mágicos** (uso obligatorio de constantes o enums).
+
+> ⚠️ **Comportamiento y S.O.:** Si alguna prueba o regla estática falla, el commit **se aborta inmediatamente** impidiendo que código no conforme llegue al repositorio. En sistemas **Windows**, es indispensable ejecutar los comandos desde **Git Bash** o la terminal de IntelliJ con entorno WSL.
+
 ---
 
-## 🚀 Ejecución y Despliegue (Perfiles)
-
-La aplicación soporta despliegue multi-entorno gracias al sistema de perfiles de Spring Boot.
-
-### Configuración de Arranque (Run/Debug Configurations en IntelliJ)
-Recuerda aplicar obligatoriamente el parámetro de red IPv4 en las VM options para evitar fallos de conectividad con los servicios externos:
-* **VM options:** `-Djava.net.preferIPv4Stack=true`
-
-### Entorno Local (TDD y Pruebas Rápidas)
-Levanta la aplicación utilizando H2 In-Memory configurado en modo compatibilidad PostgreSQL. No requiere contenedores adicionales.
-
-**Vía Maven:**
+### 3. Variables de Entorno
 ```bash
-./mvnw spring-boot:run -Dspring-boot.run.profiles=local
-```
-**Vía JAR compilado:**
-```bash
-java -Djava.net.preferIPv4Stack=true -jar target/aegiscode-0.0.1-SNAPSHOT.jar --spring.profiles.active=local
+export GROQ_API_KEY="gsk_tu_api_key_aqui"
+export TOKEN="github_pat_tu_token_aqui"
+export JWT_SECRET="clave_secreta_para_jwt_de_al_menos_256_bits"
 ```
 
-### Entorno Producción (Integración Supabase + Groq)
-Ataca directamente a los recursos en la nube. Requiere inyectar las variables de entorno de seguridad (`SUPABASE_PASSWORD`, `GROQ_API_KEY`).
+### 4. Compilar Backend y Frontend
+```bash
+# Frontend
+cd landing
+npm install
+npm run build
+cd ..
 
-**Vía Maven:**
-```bash
-./mvnw spring-boot:run -Dspring-boot.run.profiles=prod
+# Backend
+./mvnw clean compile
 ```
-**Vía JAR compilado:**
+
+### 5. Ejecutar Pruebas (Unitarias + Arquitectura)
 ```bash
-java -Djava.net.preferIPv4Stack=true -jar target/aegiscode-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+./mvnw clean verify
 ```
+
+### 6. Arrancar el Servidor (Entorno Local H2)
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=local \
+  -Dspring-boot.run.jvmArguments="-Djava.net.preferIPv4Stack=true"
+```
+El servidor backend y la aplicación web integrada estarán disponibles en: **`http://localhost:8080`**.
+
+---
+
+## 🔒 Seguridad por Capas (DevSecOps)
+
+1. **Defensa contra Prompt Injection:** `PromptInjectionDefense` sanitiza la entrada enviada al LLM descartando instrucciones maliciosas e imponiendo delimitadores estrictos `[INICIO_CODIGO_FUENTE]` y `[FIN_CODIGO_FUENTE]`.
+2. **Row Level Security (RLS) en Base de Datos:** Las migraciones Flyway inyectan políticas de seguridad a nivel de motor SQL:
+   ```sql
+   ALTER TABLE audit_reports ENABLE ROW LEVEL SECURITY;
+   CREATE POLICY deny_anon_audit ON audit_reports FOR ALL TO anon, authenticated USING (false);
+   ```
+3. **Rate Limiting:** Control de cuota vía Bucket4j limitando a un máximo de 5 peticiones por minuto en análisis pesados.
+4. **JWT & Passwords:** Hash de contraseñas mediante **BCrypt** y firma de tokens JWT HMAC-SHA256 con expiración de 24 horas.
+
+---
+
+## 🧪 Gobernanza y Calidad de Código
+
+El proyecto aplica reglas estrictas de calidad en tiempo de compilación y ejecución:
+
+* **Retorno Único:** Máximo un (1) `return` por método.
+* **Complejidad Ciclomática:** Máximo tres (3) sentencias `if` por método.
+* **Cero Números Mágicos:** Uso obligatorio de constantes `static final` o enumerados.
+* **Aislamiento de Arquitectura (ArchUnit):**
+  ```java
+  @ArchTest
+  static final ArchRule domain_should_be_isolated =
+      noClasses().that().resideInAPackage("..domain..")
+          .should().dependOnClassesThat().resideInAnyPackage(
+              "..infrastructure..", "..application..", "org.springframework..");
+  ```
+
+---
+
+## 📁 Estructura del Repositorio
+
+```text
+Shift-Left/
+├── landing/                              ← 🖥️ Frontend React 19 + Vite + Tailwind v4
+│   ├── src/
+│   │   ├── pages/                        ← Landing, Dashboard, Architecture, Endpoints, Admin
+│   │   ├── components/                   ← Componentes UI, Hero, Partículas, Navbar
+│   │   └── contexts/AuthContext.tsx       ← Gestión de estado JWT y autenticación
+├── .githooks/                            ← 🛡️ Pre-commit hook local (ArchUnit + Checkstyle)
+│   └── pre-commit
+├── src/main/java/com/amalakaky/aegiscode/
+│   ├── domain/model/                     ← 🧱 Entidades de Dominio (AuditReport, Vulnerability, User)
+│   ├── application/                      ← 🎯 Puertos (In/Out) y Casos de Uso
+│   └── infrastructure/                   ← 🔌 Adaptadores REST, JPA, AI (Groq), Security, PDF
+├── src/main/resources/
+│   ├── application-local.yml             ← Configuración perfiles H2 local
+│   ├── application-prod.yml              ← Configuración Oracle 23c Cloud
+│   └── db/migration/                     ← 🗄️ Migraciones Flyway (V1..V5)
+└── pom.xml                               ← Configuración Maven + Plugins (JaCoCo, ArchUnit)
+```
+
+---
+
+© 2026 — **AegisCode AI TFM** | Máster en Desarrollo con IA | Shift-Left DevSecOps
