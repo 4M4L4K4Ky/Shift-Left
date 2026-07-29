@@ -1,0 +1,40 @@
+name: TFM CI Pipeline
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+      - run: mvn checkstyle:check
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Build and Test
+        env:
+          ORACLE_USER: ${{ secrets.ORACLE_USER }}
+          ORACLE_DB_PASSWORD: ${{ secrets.ORACLE_DB_PASSWORD }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          ORACLE_TNS_ADMIN: infra/oracle-wallet
+          TOKEN: ${{ secrets.TOKEN }}
+          DB_ORACLE: ${{ secrets.DB_ORACLE  }}
+        run: mvn clean verify -Dspring.profiles.active=prod
+
+

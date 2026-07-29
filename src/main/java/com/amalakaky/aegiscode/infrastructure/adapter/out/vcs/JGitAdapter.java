@@ -1,78 +1,110 @@
 package com.amalakaky.aegiscode.infrastructure.adapter.out.vcs;
 
 import com.amalakaky.aegiscode.application.port.out.vcs.GitProviderPort;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.util.List;
-import java.nio.file.Path;
-import java.io.IOException;
-import java.util.stream.Stream;
-
+/**
+ * Adaptador de infraestructura que implementa {@link GitProviderPort} usando
+ * Eclipse JGit para clonar repositorios GitHub.
+ *
+ * Realiza un clon superficial (shallow clone, depth=1) para minimizar el tiempo
+ * de descarga y el espacio en disco. La autenticacion se realiza mediante
+ * GitHub Personal Access Token configurado en {@code app.vcs.github.token}.
+ */
 @Slf4j
 @Component
 public class JGitAdapter implements GitProviderPort {
 
-    private final String githubToken;
+  private static final String TEMP_DIR_PREFIX = "aegiscode-repo-";
+  private static final String JAVA_EXTENSION = ".java";
 
-    // Inyectamos el token de forma segura
-    public JGitAdapter(@Value("${app.vcs.github.token}") String githubToken) {
-        this.githubToken = githubToken;
+  private final String githubToken;
+
+  public JGitAdapter(@Value("${app.vcs.github.token}") String githubToken) {
+    this.githubToken = githubToken;
+  }
+
+  @Override
+  public String fetchSourceFiles(String repositoryUrl, String branch) {
+    File tempDir = null;
+    String result = "";
+    try {
+      tempDir = Files.createTempDirectory(TEMP_DIR_PREFIX).toFile();
+      log.info("Directorio temporal creado en: {}", tempDir.getAbsolutePath());
+
+      UsernamePasswordCredentialsProvider credentials =
+          new UsernamePasswordCredentialsProvider(githubToken, "");
+
+      log.info("Iniciando clonado seguro de {} (Rama: {})", repositoryUrl, branch);
+      try (Git git = Git.cloneRepository()
+          .setURI(repositoryUrl)
+          .setBranch(branch)
+          .setDirectory(tempDir)
+          .setCredentialsProvider(credentials)
+          .setDepth(1)
+          .call()) {
+        log.info("Clonado exitoso. Extrayendo ficheros Java...");
+        result = readJavaFiles(tempDir);
+      }
+    } catch (Exception e) {
+      log.error("Fallo crítico en infraestructura JGit: {}", e.getMessage(), e);
+      throw new IllegalStateException(
+          "Error al clonar el repositorio: " + repositoryUrl, e);
+    } finally {
+      deleteDirectory(tempDir);
     }
+    return result;
+  }
 
-    @Override
-    public List<File> fetchSourceFiles(String repositoryUrl, String branch) {
-        File tempDir = null;
-        try {
-            // 1. Crear directorio temporal seguro (Mitigación DoS)
-            tempDir = Files.createTempDirectory("aegiscode-repo-").toFile();
-            log.info("Directorio temporal creado en: {}", tempDir.getAbsolutePath());
-
-            // 2. Configurar credenciales DevSecOps (PAT de GitHub)
-            UsernamePasswordCredentialsProvider credentials =
-                    new UsernamePasswordCredentialsProvider(githubToken, "");
-
-            // 3. Clonado superficial (Shallow Clone) para máximo rendimiento
-            log.info("Iniciando clonado seguro de {} (Rama: {})", repositoryUrl, branch);
-            try (Git git = Git.cloneRepository()
-                    .setURI(repositoryUrl)
-                    .setBranch(branch)
-                    .setDirectory(tempDir)
-                    .setCredentialsProvider(credentials)
-                    .setDepth(1) // VITAL: Ahorra red y almacenamiento
-                    .call()) {
-
-                log.info("Clonado exitoso. Extrayendo ficheros Java...");
-                // Aquí llamas a tu lógica para recorrer 'tempDir' y sacar los .java
-                return extractJavaFiles(tempDir);
+  private String readJavaFiles(File directory) {
+    StringBuilder content = new StringBuilder();
+    try (Stream<Path> paths = Files.walk(directory.toPath())) {
+      paths
+          .filter(Files::isRegularFile)
+          .filter(path -> path.toString().endsWith(JAVA_EXTENSION))
+          .forEach(path -> {
+            try {
+              content.append("--- Archivo: ")
+                  .append(path.getFileName().toString())
+                  .append(" ---\n");
+              content.append(Files.readString(path, StandardCharsets.UTF_8))
+                  .append("\n\n");
+            } catch (IOException e) {
+              log.warn("No se pudo leer el archivo {}", path.getFileName());
             }
-
-        } catch (Exception e) {
-            log.error("Fallo crítico en infraestructura JGit: {}", e.getMessage(), e);
-            throw new IllegalStateException("Error al clonar el repositorio: " + repositoryUrl, e);
-        } finally {
-            // IMPORTANTE: Un buen arquitecto siempre limpia la basura.
-            // Asegúrate de que el caso de uso o este adapter borre el tempDir tras pasárselo al LLM.
-        }
+          });
+    } catch (IOException e) {
+      log.error("Fallo de I/O al recorrer el repositorio: {}", e.getMessage());
+      throw new IllegalStateException("Error al extraer archivos Java", e);
     }
+    return content.toString();
+  }
 
-    // Método dummy, asumo que ya tienes implementada la búsqueda recursiva de archivos .java
-    private List<File> extractJavaFiles(File directory) {
-        try (Stream<Path> paths = Files.walk(directory.toPath())) {
-            return paths
-                    .filter(Files::isRegularFile)
-                    .filter(path -> path.toString().endsWith(".java"))
-                    .map(Path::toFile)
-                    .toList();
-        } catch (IOException e) {
-            log.error("Fallo de I/O al recorrer el árbol del repositorio en {}: {}", directory.getAbsolutePath(), e.getMessage());
-            throw new IllegalStateException("Error al extraer archivos Java", e);
-        }
+  private static void deleteDirectory(File directory) {
+    if (directory != null) {
+      try (Stream<Path> paths = Files.walk(directory.toPath())) {
+        paths.sorted(java.util.Comparator.reverseOrder())
+            .map(Path::toFile)
+            .forEach(File::delete);
+        log.info("Directorio temporal eliminado: {}", directory.getAbsolutePath());
+      } catch (IOException e) {
+        log.warn("No se pudo eliminar el directorio temporal: {}",
+            directory.getAbsolutePath(), e);
+      }
     }
+  }
 }
+
+
+
+

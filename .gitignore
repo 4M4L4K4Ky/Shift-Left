@@ -4,10 +4,15 @@
 .idea/
 *.iml
 *.iws
+.run/
 
 # ==========================================
 # Compilación y Build (Maven)
 # ==========================================
+infra/oracle-wallet/
+**/wallet/
+*.sso
+*.p12
 
 target/
 *.class
@@ -33,3 +38,14 @@ application-local.properties
 # Mac / SO
 # ==========================================
 .DS_Store
+/infra/
+
+*.md
+
+*.txt
+
+*.bat
+
+*.sh
+
+.idea_backup/

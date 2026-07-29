@@ -3,19 +3,28 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <!-- ============================================ -->
+    <!-- SPRING BOOT PARENT                           -->
+    <!-- ============================================ -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.3.0</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
 
+    <!-- ============================================ -->
+    <!-- INFORMACIÓN DEL PROYECTO                     -->
+    <!-- ============================================ -->
     <groupId>com.amalakaky</groupId>
     <artifactId>aegiscode</artifactId>
     <version>26.7.0-SNAPSHOT</version>
     <name>aegiscode</name>
-    <description>Shift-Left DevSecOps TFM - Multi-Agent Architecture</description>
+    <description>Shift-Left DevSecOps TFM — Multi-Agent Architecture for Static Code Analysis and Automated Vulnerability Remediation</description>
 
+    <!-- ============================================ -->
+    <!-- PROPIEDADES GLOBALES                         -->
+    <!-- ============================================ -->
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>21</java.version>
@@ -25,7 +34,10 @@
         <mapstruct.version>1.5.5.Final</mapstruct.version>
     </properties>
 
-    <!-- Repositorio necesario para versiones Milestone de Spring AI -->
+    <!-- ============================================ -->
+    <!-- REPOSITORIOS                                 -->
+    <!-- ============================================ -->
+    <!-- Repositorio Milestone de Spring necesario para Spring AI (aún no publicado en Maven Central) -->
     <repositories>
         <repository>
             <id>spring-milestones</id>
@@ -37,10 +49,12 @@
         </repository>
     </repositories>
 
+    <!-- ============================================ -->
+    <!-- DEPENDENCIAS                                  -->
+    <!-- ============================================ -->
     <dependencies>
-        <!-- ========================================== -->
-        <!-- CORE SPRING & WEB                          -->
-        <!-- ========================================== -->
+
+        <!-- ========== CORE SPRING & WEB ========== -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -50,27 +64,25 @@
             <artifactId>mapstruct</artifactId>
             <version>${mapstruct.version}</version>
         </dependency>
-        <!-- Eclipse JGit para clonado y gestión de repositorios Git -->
+        <!-- Eclipse JGit: clonado de repositorios Git para auditoría remota -->
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
             <version>6.10.0.202406032230-r</version>
         </dependency>
-        <!-- ========================================== -->
-        <!-- SPRING AI & LLM INTEGRATION                -->
-        <!-- ========================================== -->
+
+        <!-- ========== SPRING AI & LLM ========== -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-core</artifactId>
         </dependency>
-        <!-- Proveedor de IA (Gemini a través de su endpoint compatible con OpenAI) -->
+        <!-- Cliente Spring AI para API compatible OpenAI (Gemini) -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
         </dependency>
-        <!-- ========================================== -->
-        <!-- PERSISTENCIA Y BASES DE DATOS              -->
-        <!-- ========================================== -->
+
+        <!-- ========== PERSISTENCIA ========== -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -80,21 +92,43 @@
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- Driver JDBC de Oracle 23c -->
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc11</artifactId>
+            <version>21.9.0.0</version>
+        </dependency>
+        <!-- Oracle PKI: librerías necesarias para conexión mTLS con ATP mediante Wallet -->
+        <dependency>
+            <groupId>com.oracle.database.security</groupId>
+            <artifactId>oraclepki</artifactId>
+            <version>21.9.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.database.security</groupId>
+            <artifactId>osdt_core</artifactId>
+            <version>21.9.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.database.security</groupId>
+            <artifactId>osdt_cert</artifactId>
+            <version>21.9.0.0</version>
+        </dependency>
+        <!-- H2 para desarrollo local sin Oracle -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-        </dependency>
-        <!-- Dependencias necesarias para las clases generadas por OpenAPI -->
+
+        <!-- ========== OPENAPI / SWAGGER ========== -->
+        <!-- Anotaciones Swagger para clases generadas por OpenAPI Generator -->
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
             <version>2.2.22</version>
         </dependency>
+        <!-- Soporte Jackson para valores nullable en DTOs generados -->
         <dependency>
             <groupId>org.openapitools</groupId>
             <artifactId>jackson-databind-nullable</artifactId>
@@ -104,50 +138,72 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
+
+        <!-- ========== SEGURIDAD Y DEVSECOPS ========== -->
+        <!-- Spring Security: autenticación y autorización -->
         <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-database-postgresql</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <!-- JWT (JSON Web Token): generación y validación de tokens de acceso -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.12.6</version>
         </dependency>
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.12.6</version>
             <scope>runtime</scope>
         </dependency>
-
-        <!-- ========================================== -->
-        <!-- SEGURIDAD Y DEVSECOPS                      -->
-        <!-- ========================================== -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+        <!-- Bucket4j: rate limiting para proteger la API contra abuso -->
         <dependency>
             <groupId>com.bucket4j</groupId>
             <artifactId>bucket4j-core</artifactId>
             <version>8.10.1</version>
         </dependency>
 
-        <!-- ========================================== -->
-        <!-- DOCUMENTACIÓN API (OpenAPI / Swagger)      -->
-        <!-- ========================================== -->
+        <!-- ========== DOCUMENTACIÓN API ========== -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.5.0</version>
         </dependency>
 
-        <!-- ========================================== -->
-        <!-- TESTING Y ARQUITECTURA (ArchUnit)          -->
-        <!-- ========================================== -->
+        <!-- ========== GENERACIÓN DE INFORMES ========== -->
+        <!-- Apache PDFBox 3: generación del informe PDF de auditoría -->
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+
+        <!-- ========== TESTING ========== -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- ArchUnit: validación automática de la arquitectura hexagonal -->
         <dependency>
             <groupId>com.tngtech.archunit</groupId>
             <artifactId>archunit-junit5</artifactId>
             <version>${archunit.version}</version>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
+    <!-- ============================================ -->
+    <!-- BOM (BILL OF MATERIALS)                      -->
+    <!-- ============================================ -->
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -160,14 +216,19 @@
         </dependencies>
     </dependencyManagement>
 
+    <!-- ============================================ -->
+    <!-- PLUGINS DE BUILD                              -->
+    <!-- ============================================ -->
     <build>
         <plugins>
-            <!-- Plugin de empaquetado Spring Boot -->
+
+            <!-- Spring Boot: empaquetado en JAR ejecutable -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-            <!-- Compilador con soporte para Lombok -->
+
+            <!-- Compilador Java con procesador de anotaciones Lombok -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -181,6 +242,8 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+
+            <!-- OpenAPI Generator: genera clases REST (delegate pattern) a partir de openapi.yaml -->
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
@@ -197,17 +260,13 @@
                             <apiPackage>com.amalakaky.aegiscode.infrastructure.adapter.in.rest</apiPackage>
                             <modelPackage>com.amalakaky.aegiscode.infrastructure.adapter.in.rest.dto</modelPackage>
                             <modelNameSuffix>Dto</modelNameSuffix>
-                            <!-- Evita generar clases como ApiUtil que ensucian el repo -->
                             <generateSupportingFiles>false</generateSupportingFiles>
                             <configOptions>
-                                <!-- Nuestro seguro de vida arquitectónico -->
                                 <delegatePattern>true</delegatePattern>
                                 <useSpringBoot3>true</useSpringBoot3>
                                 <useTags>true</useTags>
                                 <sourceFolder>src/main/java</sourceFolder>
                                 <skipDefaultInterface>false</skipDefaultInterface>
-
-                                <!-- Tu configuración avanzada corporativa -->
                                 <openApiNullable>true</openApiNullable>
                                 <serializableModel>true</serializableModel>
                                 <unhandledException>true</unhandledException>
@@ -224,7 +283,34 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- Plugin de Checkstyle unificado para validación estática -->
+
+            <!-- JaCoCo: cobertura de código -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.14</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>com/amalakaky/aegiscode/infrastructure/adapter/in/rest/AuditEngineApiDelegate*</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Checkstyle: validación estática del estilo de código (Google Java Style) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
@@ -247,6 +333,18 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- Configuración de tests con soporte para Byte Buddy en Java 25+ -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <net.bytebuddy.experimental>true</net.bytebuddy.experimental>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 </project>
