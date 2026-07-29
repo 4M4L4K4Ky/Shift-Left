@@ -124,52 +124,38 @@ curl -X POST http://localhost:8080/api/auth/login \
 El diseño del backend sigue estrictamente los principios de **Arquitectura Hexagonal (Ports & Adapters)** combinados con **Domain-Driven Design (DDD)**. La capa de dominio es inmutable y agnóstica de frameworks.
 
 ```mermaid
-graph TB
-    subgraph "🌐 Frontend React (landing/)"
-        LP[Landing Page]
-        LG[Login Page]
-        DB[Dashboard]
-        EP[Endpoints Page]
-        AP[Admin Page]
+flowchart TD
+    subgraph L1 ["🌐 1. Capa de Presentación (Frontend React 19)"]
+        FE["Landing Page  |  Login Page  |  Dashboard  |  Endpoints  |  Admin"]
     end
 
-    subgraph "🧱 Dominio (Agnóstico)"
-        AR[AuditReport]
-        V[Vulnerability]
-        SS[SeverityScore]
-        U[User]
-        JT[JwtToken]
+    subgraph L2 ["🔌 2. Adaptadores de Entrada (REST Controllers)"]
+        AA["AuthApiDelegate<br/>(/api/auth/*)"]
+        ADA["AuditApiDelegate<br/>(/api/v1/audits/*)"]
     end
 
-    subgraph "🎯 Aplicación (Puertos y Casos de Uso)"
-        AC[AnalyzeCodeUseCase]
-        AUTH[AuthPort]
-        GAR[GetAuditReportUseCase]
-        GAS[GetAuditStatisticsUseCase]
+    subgraph L3 ["🎯 3. Capa de Aplicación (Puertos y Casos de Uso)"]
+        UC1["AuthUseCase"]
+        UC2["AnalyzeCodeUseCase"]
+        UC3["GetAuditReportUseCase"]
+        UC4["GetAuditStatisticsUseCase"]
     end
 
-    subgraph "🔌 Infraestructura (Adaptadores)"
-        subgraph "Entrada (REST)"
-            AA[AuthApiDelegate]
-            ADA[AuditApiDelegate]
-        end
-        subgraph "Salida"
-            AIA[AiAuditorAdapter]
-            AIR[AiRemediationAdapter]
-            AIS[AiRepositoryScannerAdapter]
-            OA[OracleAuditRepositoryAdapter]
-            PA[PdfBoxReportAdapter]
-            JG[JGitAdapter]
-            PID[PromptInjectionDefense]
-        end
+    subgraph L4 ["🧱 4. Capa de Dominio (Modelo Core Inmutable)"]
+        DOM["AuditReport  •  Vulnerability  •  SeverityScore  •  User  •  JwtToken"]
     end
 
-    LP & LG --> AA
-    DB & EP --> ADA
-    AA --> AUTH
-    ADA --> AC & GAR & GAS
-    AUTH --> OA
-    AC --> AIA & AIR & AIS
+    subgraph L5 ["⚙️ 5. Adaptadores de Salida (Infraestructura)"]
+        AI["🤖 Agentes IA (Groq / LLaMA 3.3)<br/>Scanner  |  Auditor  |  Remediation"]
+        DB["💾 Persistencia & DB<br/>Oracle 23c  |  H2 Database  |  Flyway"]
+        EXT["📄 Servicios Auxiliares<br/>PDFBox Report  |  JGit Adapter  |  Prompt Injection Defense"]
+    end
+
+    %% Flujo vertical limpio sin solapamientos
+    L1 -->|Peticiones HTTP / Bearer JWT| L2
+    L2 -->|Invoca Puertos de Entrada| L3
+    L3 -->|Gobierna Reglas con| L4
+    L3 -->|Persiste y Consulta vía| L5
 ```
 
 ---
