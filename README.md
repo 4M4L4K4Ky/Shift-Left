@@ -31,16 +31,16 @@ Plataforma DevSecOps basada en una arquitectura multi-agente de Inteligencia Art
 flowchart LR
     A[Desarrollador] -->|Push / Commit| B[Pre-commit Hook]
     B --> C[ArchUnit + Checkstyle]
-    B --> D[CI Pipeline<br/>GitHub Actions]
+    B --> D["CI Pipeline<br/>GitHub Actions"]
     D --> E{API REST}
-    E --> F[/api/auth/login]
-    E --> G[/api/v1/audits/inline]
-    E --> H[/api/v1/audits/repository]
+    E --> F["/api/auth/login"]
+    E --> G["/api/v1/audits/inline"]
+    E --> H["/api/v1/audits/repository"]
     F --> K[JWT Token]
-    G & H --> L[Auditor Agent<br/>LLaMA 3.3 70B]
-    L --> M[Remediation Agent<br/>LLaMA 3.3 70B]
-    M --> N[(Oracle 23c / H2)]
-    N --> O[Frontend React<br/>Dashboard + Playground]
+    G & H --> L["Auditor Agent<br/>LLaMA 3.3 70B"]
+    L --> M["Remediation Agent<br/>LLaMA 3.3 70B"]
+    M --> N[("Oracle 23c / H2")]
+    N --> O["Frontend React<br/>Dashboard + Playground"]
 ```
 
 ---
