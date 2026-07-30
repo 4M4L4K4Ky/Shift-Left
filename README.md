@@ -45,37 +45,11 @@ flowchart LR
 
 ---
 
-## 🔗 Enlaces de la Entrega TFM
 
-| Recurso | Enlace / Ubicación |
-| :--- | :--- |
-| 🌐 **Despliegue Producción** | [AÑADIR_URL_AQUI] |
-| 📽️ **Slides / Presentación** | [AÑADIR_URL_AQUI] |
-| 🎬 **Vídeo Demostración** | [AÑADIR_URL_AQUI] |
-| 📖 **Repositorio GitHub** | [https://github.com/4M4L4K4Ky/Shift-Left](https://github.com/4M4L4K4Ky/Shift-Left) |
-| 📄 **Swagger UI (Local)** | `http://localhost:8080/swagger-ui/index.html` |
-| 🖥️ **Frontend (Dev)** | `http://localhost:5173` |
-
----
 
 ## 👤 Credenciales de Acceso (Evaluación TFM)
 
 Para evaluar el sistema, puede registrar un usuario vía API o utilizar el usuario administrador por defecto:
-
-```bash
-# 1. Registrar usuario evaluador (WRITER + READER)
-curl -X POST http://localhost:8080/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"username":"admin","password":"admin123","scopes":["READER","WRITER"]}'
-
-# 2. Iniciar sesión
-curl -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"admin","password":"admin123"}'
-
-# 3. Respuesta esperada:
-# { "token": "eyJ...", "username": "admin", "scopes": "READER,WRITER" }
-```
 
 ### Tabla de Permisos por Rol
 | Rol | Permisos y Endpoints Accesibles |
@@ -170,7 +144,7 @@ flowchart TD
 
 ### 1. Clonar el Repositorio
 ```bash
-git clone -b feature/landing_page [https://github.com/4M4L4K4Ky/Shift-Left.git](https://github.com/4M4L4K4Ky/Shift-Left.git)
+git clone -b main https://github.com/4M4L4K4Ky/Shift-Left.git
 cd Shift-Left
 ```
 
@@ -280,7 +254,19 @@ Shift-Left/
 │   └── db/migration/                     ← 🗄️ Migraciones Flyway (V1..V5)
 └── pom.xml                               ← Configuración Maven + Plugins (JaCoCo, ArchUnit)
 ```
+## 📸 Capturas de la Aplicación
 
+| Landing Page | Login |
+|:---:|:---:|
+| ![Landing](docs/screenshots/landing.png) | ![Login](docs/screenshots/login.png) |
+
+| Dashboard Analítico | Arquitectura Hexagonal |
+|:---:|:---:|
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Arquitectura](docs/screenshots/arquitectura.png) |
+
+| API Playground | Panel de Administración |
+|:---:|:---:|
+| ![Endpoints](docs/screenshots/endpoints.png) | ![Admin](docs/screenshots/admin.png) |
 ---
 
 © 2026 — **AegisCode AI TFM** | Máster en Desarrollo con IA | Shift-Left DevSecOps
