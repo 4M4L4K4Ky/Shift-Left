@@ -216,6 +216,7 @@ El servidor backend y la aplicación web integrada estarán disponibles en: **`h
 ---
 
 ## 🧪 Gobernanza y Calidad de Código
+[![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen.svg)](#-gobernanza-y-calidad-de-código)
 
 El proyecto aplica reglas estrictas de calidad en tiempo de compilación y ejecución:
 
@@ -229,8 +230,9 @@ El proyecto aplica reglas estrictas de calidad en tiempo de compilación y ejecu
       noClasses().that().resideInAPackage("..domain..")
           .should().dependOnClassesThat().resideInAnyPackage(
               "..infrastructure..", "..application..", "org.springframework..");
-  ```
 
+  ```
+![Coverage](docs/screenshots/coverage.png)
 ---
 
 ## 📁 Estructura del Repositorio
@@ -268,5 +270,45 @@ Shift-Left/
 |:---:|:---:|
 | ![Endpoints](docs/screenshots/endpoints.png) | ![Admin](docs/screenshots/admin.png) |
 ---
+
+## 🔍 Ejemplo de Auditoría Real
+
+### Input — Código vulnerable enviado al agente
+
+```java
+String query = "SELECT * FROM users WHERE username = '" + userInput + "'";
+statement.executeQuery(query);
+```
+
+### Output — Respuesta del agente auditor
+
+- **Vulnerabilidad detectada:** CWE-89 — SQL Injection
+- **Severidad:** 10/10
+- **Remediación aplicada:** Uso de `PreparedStatement` con parámetros enlazados
+
+### Código refactorizado por el agente de remediación
+
+```java
+String query = "SELECT * FROM users WHERE username = ?";
+PreparedStatement stmt = connection.prepareStatement(query);
+stmt.setString(1, userInput);
+stmt.executeQuery();
+```
+## 🧠 Decisiones de Arquitectura
+
+### ¿Por qué LLaMA 3.3 70B vía Groq y no GPT-4 o Claude?
+- **Groq LPU** ofrece inferencia significativamente más rápida que las APIs tradicionales, crítico para análisis en tiempo real dentro de un pipeline CI/CD.
+- LLaMA 3.3 70B es open-weight, lo que permite reproducibilidad del TFM sin dependencia de APIs propietarias de pago.
+- La integración vía **Spring AI** abstrae el proveedor, permitiendo sustituirlo sin tocar lógica de negocio.
+
+### ¿Por qué Arquitectura Hexagonal y no capas tradicionales?
+- El dominio permanece **agnóstico de frameworks**: si Spring Boot cambia de versión o se sustituye Oracle por PostgreSQL, el núcleo de negocio no se toca.
+- Facilita el **testing unitario puro** del dominio sin levantar contexto de Spring.
+- ArchUnit verifica en tiempo de compilación que ningún adaptador viola el aislamiento del dominio.
+
+### ¿Por qué dos bases de datos (H2 + Oracle 23c)?
+- **H2** permite ejecutar el proyecto localmente sin infraestructura externa, reduciendo la barrera de entrada para evaluación.
+- **Oracle 23c** en Cloud (ATP) es el entorno de producción real con Row Level Security a nivel de motor SQL.
+
 
 © 2026 — **AegisCode AI TFM** | Máster en Desarrollo con IA | Shift-Left DevSecOps

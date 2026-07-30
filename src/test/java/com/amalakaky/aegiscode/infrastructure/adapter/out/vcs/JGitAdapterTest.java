@@ -213,4 +213,45 @@ class JGitAdapterTest {
         .hasMessageContaining("Error al extraer archivos Java");
     }
   }
+    @SneakyThrows
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    @Test
+    void readJavaFiles_shouldHandleIOExceptionWhenReadingSingleFile() {
+        Path tempDirPath = Path.of("/tmp/test-repo");
+        Path readablePath = tempDirPath.resolve("Readable.java");
+        Path unreadablePath = tempDirPath.resolve("Unreadable.java");
+
+        try (MockedStatic<Files> filesMock = mockStatic(Files.class)) {
+            Stream walkStream = mock(Stream.class);
+            when(walkStream.filter(any())).thenReturn(walkStream);
+
+            // Simulamos la iteración pasando un archivo legible y uno corrupto/ilegible
+            doAnswer(invocation -> {
+                java.util.function.Consumer consumer = invocation.getArgument(0);
+                consumer.accept(readablePath);
+                consumer.accept(unreadablePath);
+                return null;
+            }).when(walkStream).forEach(any());
+
+            filesMock.when(() -> Files.walk(tempDirPath)).thenReturn(walkStream);
+
+            // El primero se lee bien
+            filesMock.when(() -> Files.readString(readablePath, java.nio.charset.StandardCharsets.UTF_8))
+                    .thenReturn("class Readable {}");
+
+            // El segundo lanza IOException para forzar el bloque catch interno
+            filesMock.when(() -> Files.readString(unreadablePath, java.nio.charset.StandardCharsets.UTF_8))
+                    .thenThrow(new IOException("Error de lectura de disco"));
+
+            var adapter = new JGitAdapter("dummy-token");
+            Method method = JGitAdapter.class.getDeclaredMethod("readJavaFiles", File.class);
+            method.setAccessible(true);
+            var result = (String) method.invoke(adapter, tempDirPath.toFile());
+
+            assertThat(result)
+                    .contains("--- Archivo: Readable.java ---")
+                    .contains("class Readable {}")
+                    .doesNotContain("class Unreadable {}");
+        }
+    }
 }
