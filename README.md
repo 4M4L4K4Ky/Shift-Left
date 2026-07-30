@@ -136,7 +136,7 @@ flowchart TD
 
 ### 1. Clonar el Repositorio
 ```bash
-git clone -b feature/landing_page [https://github.com/4M4L4K4Ky/Shift-Left.git](https://github.com/4M4L4K4Ky/Shift-Left.git)
+git clone -b main https://github.com/4M4L4K4Ky/Shift-Left.git
 cd Shift-Left
 ```
 
