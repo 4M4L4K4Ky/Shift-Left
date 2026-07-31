@@ -171,9 +171,11 @@ El script utiliza `#!/bin/sh` y desencadena la siguiente secuencia:
 
 ### 3. Variables de Entorno
 ```bash
+export DB_ORACLE="jdbc:oracle:thin:@//tu_host:1521/tu_servicio"
+export ORACLE_DB_PASSWORD="tu_contraseña_oracle"
+export ORACLE_USER="tu_usuario_oracle"
 export GROQ_API_KEY="gsk_tu_api_key_aqui"
 export TOKEN="github_pat_tu_token_aqui"
-export JWT_SECRET="clave_secreta_para_jwt_de_al_menos_256_bits"
 ```
 
 ### 4. Compilar Backend y Frontend
